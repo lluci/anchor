@@ -61,10 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
             badge.style.visibility = "visible"; // Show status badge
             statusLine.textContent = `Hàbit completat en ${config.label.toLowerCase()}.`;
 
-            btnFet.disabled = true;
-            btnOmit.disabled = true;
-            // Editar franja continua actiu
-            btnEdit.disabled = false;
+            // Delegate button state to the central authority
+            updateCardPhase(card);
         } else if (state === "skipped") {
             // Skipped
             card.classList.add("skipped");
@@ -188,41 +186,57 @@ document.addEventListener("DOMContentLoaded", () => {
         // 3. Apply Rules based on (Phase + State)
         const state = card.dataset.state; // pending, done, skipped
         const isEdited = card.dataset.edited === "true";
+        const isLocked = card.dataset.locked === "true";
 
         const btnFet = card.querySelector(".js-btn-fet");
         const btnEdit = card.querySelector(".js-btn-edit");
         const btnOmit = card.querySelector(".js-btn-omit");
         const badge = card.querySelector(".js-badge-window");
 
-        // --- DONE / OMIT BUTTONS ---
-        // Enabled ONLY if: (Pending) AND (Phase=Active)
-        // If Phase=Future -> Disabled
-        // If Phase=Expired -> Disabled (even if Edited, per user request)
-        if (state === "pending") {
-            if (phase === "active") {
-                if (btnFet) btnFet.disabled = false;
-                if (btnOmit) btnOmit.disabled = false;
+        // --- LOCK OVERRIDE ---
+        // If locked (user saved an edit), ALL interactions are disabled forever.
+        if (isLocked) {
+            if (btnFet) btnFet.disabled = true;
+            if (btnOmit) btnOmit.disabled = true;
+            if (btnEdit) btnEdit.disabled = true;
+            // But we still update visuals (below)
+        } else {
+            // ... Normal Logic ...
+
+            // --- DONE / OMIT BUTTONS ---
+            // Enabled ONLY if: (Pending) AND (Phase=Active)
+            // If Phase=Future -> Disabled
+            // If Phase=Expired -> Disabled (even if Edited, per user request)
+            if (state === "pending") {
+                if (phase === "active") {
+                    if (btnFet) btnFet.disabled = false;
+                    if (btnOmit) btnOmit.disabled = false;
+                } else {
+                    if (btnFet) btnFet.disabled = true;
+                    if (btnOmit) btnOmit.disabled = true;
+                }
             } else {
+                // Already Done or Skipped
                 if (btnFet) btnFet.disabled = true;
                 if (btnOmit) btnOmit.disabled = true;
             }
-        } else {
-            // Already Done or Skipped
-            if (btnFet) btnFet.disabled = true;
-            if (btnOmit) btnOmit.disabled = true;
-        }
 
-        // --- EDIT BUTTON ---
-        // Enabled ONLY if: NOT (Phase=Active AND State=Pending AND !Edited)
-        // i.e. Disabled during the normal active execution window.
-        // Enabled in Future? No, keep disabled in future.
-        if (phase === "future") {
-            if (btnEdit) btnEdit.disabled = true;
-        } else if (phase === "active" && state === "pending" && !isEdited) {
-            if (btnEdit) btnEdit.disabled = true;
-        } else {
-            // Expired, Done, Skipped, or Edited -> Enable
-            if (btnEdit) btnEdit.disabled = false;
+            // --- EDIT BUTTON ---
+            // Enabled ONLY if: NOT (Phase=Active AND State=Pending AND !Edited)
+            // i.e. Disabled during the normal active execution window.
+            // Enabled in Future? No, keep disabled in future.
+            // NEW: If State=Done, Disabled (Final)
+
+            if (state === "done") {
+                if (btnEdit) btnEdit.disabled = true;
+            } else if (phase === "future") {
+                if (btnEdit) btnEdit.disabled = true;
+            } else if (phase === "active" && state === "pending" && !isEdited) {
+                if (btnEdit) btnEdit.disabled = true;
+            } else {
+                // Expired (Pending), Skipped, or Edited (Pending) -> Enable
+                if (btnEdit) btnEdit.disabled = false;
+            }
         }
 
         // --- EXPIRY VISUALS ---
@@ -310,6 +324,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="btn btn-primary js-btn-fet">${BUTTON_LABELS.done}</button>
                 <button class="btn btn-ghost js-btn-edit">${BUTTON_LABELS.edit}</button>
                 <button class="btn js-btn-omit">${BUTTON_LABELS.omit}</button>
+                
+                <button class="btn btn-primary js-btn-accept" style="display:none; background-color: #4cd964; color: white; border: none;">${BUTTON_LABELS.accept}</button>
+                <button class="btn js-btn-cancel" style="display:none;">${BUTTON_LABELS.cancel}</button>
             </div>
 
             <div class="meta-row">
@@ -372,31 +389,115 @@ document.addEventListener("DOMContentLoaded", () => {
 
         btnFet.addEventListener("click", () => {
             card.dataset.state = "done";
+            card.dataset.locked = "true"; // LOCK ON DONE
             card.dataset.window = getCurrentWindow(cfg);
             updateCardUI(card);
         });
 
-        btnEdit.addEventListener("click", () => {
-            let current = card.dataset.window;
+        const btnAccept = card.querySelector(".js-btn-accept");
+        const btnCancel = card.querySelector(".js-btn-cancel");
 
-            // If first time editing, ignore the stale dataset.window (default "green")
-            // and start cycling from the ACTUAL current visual window.
-            if (card.dataset.edited !== "true") {
-                current = getCurrentWindow(cfg);
+        // Helper to toggle Edit Mode UI
+        const toggleEditMode = (active) => {
+            if (active) {
+                btnFet.style.display = "none";
+                btnOmit.style.display = "none";
+                btnAccept.style.display = "inline-block";
+                btnCancel.style.display = "inline-block";
+                // Keep Edit button visible to allow cycling
+            } else {
+                btnFet.style.display = "inline-block";
+                btnOmit.style.display = "inline-block";
+                btnAccept.style.display = "none";
+                btnCancel.style.display = "none";
+            }
+        };
+
+        btnEdit.addEventListener("click", () => {
+            const isEditMode = card.dataset.editMode === "true";
+
+            if (!isEditMode) {
+                // ENTER EDIT MODE
+                card.dataset.editMode = "true";
+
+                // Store original state to revert if cancelled
+                card.dataset.originalWindow = card.dataset.window || "green"; // Default safe
+                card.dataset.originalEdited = card.dataset.edited || "false";
+
+                toggleEditMode(true);
+
+                // Initial Cycle on Entry
+                // If first time editing ever, ignore the stale dataset.window (default "green")
+                // and start cycling from the ACTUAL current visual window.
+                let current = card.dataset.window;
+                if (card.dataset.edited !== "true") {
+                    current = getCurrentWindow(cfg);
+                    // Also update dataset.originalWindow to this 'real' starting point
+                    // so Cancel reverts to what user actually SAW, not 'green'
+                    card.dataset.originalWindow = current;
+                }
+
+                const next = cycleWindow(current);
+                card.dataset.window = next;
+
+                // We show "Edited" immediately while cycling? 
+                // Or only on save?
+                // Visual feedback is needed. Let's show badge or just change color.
+                // Changing dataset.window changes color via updateCardUI (called below).
+
+            } else {
+                // ALREADY IN EDIT MODE -> Just Cycle
+                const current = card.dataset.window;
+                const next = cycleWindow(current);
+                card.dataset.window = next;
             }
 
-            const next = cycleWindow(current);
-            card.dataset.window = next;
+            // In Edit Mode, we don't commit 'edited=true' yet, 
+            // but we need to update UI to show the new color.
+            // We temporarily set edited=true for visual consistency (badges etc)?
+            // Actually, let's keep edited=false (if it was false) until Save.
+            // But updateCardUI uses dataset.window to set color, which is what we want.
+            updateCardUI(card);
 
-            // Mark as manually edited
+            // Re-apply toggle to ensure correct buttons are shown (updateCardUI might reset them?)
+            // updateCardUI resets buttons disabled state but not display. 
+            // However, let's be safe.
+            toggleEditMode(true);
+        });
+
+        // ACCEPT (Save)
+        btnAccept.addEventListener("click", () => {
+            // Commit changes
             card.dataset.edited = "true";
+            card.dataset.locked = "true"; // LOCK ON SAVE
+            delete card.dataset.editMode;
+            delete card.dataset.originalWindow;
+            delete card.dataset.originalEdited;
 
             // Show "Edited" badge
             if (badgeEdited) badgeEdited.style.display = "inline-block";
 
-            if (card.dataset.state === "done" || card.dataset.state === "pending") {
-                updateCardUI(card);
-            }
+            // Return to normal UI
+            toggleEditMode(false);
+            updateCardUI(card);
+
+            // Here we would send to DB...
+            console.log(`Saved habit ${id}: window=${card.dataset.window}`);
+        });
+
+        // CANCEL (Revert)
+        btnCancel.addEventListener("click", () => {
+            // Revert changes
+            card.dataset.window = card.dataset.originalWindow;
+            card.dataset.edited = card.dataset.originalEdited;
+
+            delete card.dataset.editMode;
+            delete card.dataset.originalWindow;
+            delete card.dataset.originalEdited;
+
+            // Return to normal UI
+            toggleEditMode(false);
+            updateCardUI(card);
         });
 
         btnOmit.addEventListener("click", () => {

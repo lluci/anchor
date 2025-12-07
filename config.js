@@ -35,6 +35,8 @@ const BUTTON_LABELS = {
     done: "Fet",
     edit: "Editar franja",
     omit: "Ometre avui",
+    accept: "Desar",
+    cancel: "Cancel·lar",
     edited: "Editat"
 };
 
