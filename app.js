@@ -49,10 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
             // Check if expired to show red badge immediately
             // But ONLY if not manually edited
             if (!isEdited) {
-                updateTimeRules(card);
+                updateCardPhase(card);
             } else {
                 // Determine button states for edited cards too
-                updateTimeRules(card);
+                updateCardPhase(card);
             }
         } else if (state === "done") {
             // Completed
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const globalUpdate = () => {
         document.querySelectorAll(".habit-card").forEach(card => {
             updateNowIndicator(card);
-            updateTimeRules(card);
+            updateCardPhase(card);
         });
     };
 
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- REPLACED HELPERS TO USE getEffectiveTime ---
 
-    function updateTimeRules(card) {
+    function updateCardPhase(card) {
         const id = card.dataset.habitId;
         const cfg = HABIT_CONFIG[id];
         if (!cfg) return;
@@ -174,11 +174,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const startM = toMinutes(cfg.start);
         const redEndM = toMinutes(cfg.redEnd);
 
-        const isFuture = currentM < startM;
-        const isExpired = currentM > redEndM;
-        const isActive = !isFuture && !isExpired;
+        // 1. Determine Phase
+        let phase = "future";
+        if (currentM >= startM && currentM <= redEndM) {
+            phase = "active";
+        } else if (currentM > redEndM) {
+            phase = "expired";
+        }
 
-        const state = card.dataset.state;
+        // 2. Set Phase Attribute
+        card.dataset.phase = phase;
+
+        // 3. Apply Rules based on (Phase + State)
+        const state = card.dataset.state; // pending, done, skipped
         const isEdited = card.dataset.edited === "true";
 
         const btnFet = card.querySelector(".js-btn-fet");
@@ -187,44 +195,40 @@ document.addEventListener("DOMContentLoaded", () => {
         const badge = card.querySelector(".js-badge-window");
 
         // --- DONE / OMIT BUTTONS ---
-        // Enabled ONLY if: (Pending) AND (Active OR Edited)
+        // Enabled ONLY if: (Pending) AND (Phase=Active OR Edited)
+        // If Phase=Future -> Disabled
+        // If Phase=Expired -> Disabled (unless Edited)
         if (state === "pending") {
-            if (isActive || isEdited) {
+            if (phase === "active" || isEdited) {
                 if (btnFet) btnFet.disabled = false;
                 if (btnOmit) btnOmit.disabled = false;
             } else {
-                // Future or Expired(un-edited)
                 if (btnFet) btnFet.disabled = true;
                 if (btnOmit) btnOmit.disabled = true;
             }
         } else {
-            // Already Done or Skipped -> Actions disabled
+            // Already Done or Skipped
             if (btnFet) btnFet.disabled = true;
             if (btnOmit) btnOmit.disabled = true;
         }
 
         // --- EDIT BUTTON ---
-        // User Rule: "Only past cards have Edit button active."
-        // Interpretations:
-        // - Future: Disabled
-        // - Active (Pending): Disabled (Allow system to track)
-        // - Done/Skipped: Enabled (Fix history)
-        // - Expired (Pending): Enabled (Rescue/Late entry)
-        // - Edited (Pending): Enabled (Continue editing)
-
-        if (isFuture) {
+        // Enabled ONLY if: NOT (Phase=Active AND State=Pending AND !Edited)
+        // i.e. Disabled during the normal active execution window.
+        // Enabled in Future? No, keep disabled in future.
+        if (phase === "future") {
             if (btnEdit) btnEdit.disabled = true;
-        } else if (state === "pending" && isActive && !isEdited) {
+        } else if (phase === "active" && state === "pending" && !isEdited) {
             if (btnEdit) btnEdit.disabled = true;
         } else {
-            // Done, Skipped, Expired, or already Edited
+            // Expired, Done, Skipped, or Edited -> Enable
             if (btnEdit) btnEdit.disabled = false;
         }
 
         // --- EXPIRY VISUALS ---
         if (state === "pending") {
             const redConfig = WINDOW_VARIANTS["red"];
-            if (isExpired && !isEdited) {
+            if (phase === "expired" && !isEdited) {
                 // Show Red Badge
                 badge.classList.remove("badge-green", "badge-orange", "badge-red");
                 badge.classList.add(redConfig.badgeClass);
@@ -234,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Hide Badge (Future or Active)
                 badge.style.visibility = "hidden";
             }
-            // If isEdited, visibility is handled by updateCardUI (kept visible)
         }
     }
 
@@ -282,6 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.dataset.habitId = id;
         card.dataset.window = "green"; // Default start window
         card.dataset.state = "pending"; // Default state
+        card.dataset.phase = "future"; // Default phase (will be updated immediately)
 
         // HTML Structure
         card.innerHTML = `
