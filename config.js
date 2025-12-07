@@ -24,3 +24,15 @@ const HABIT_CONFIG = {
         icon: "🍲",
     },
 };
+
+const WINDOW_VARIANTS = {
+    green: { label: "Franja verda", statusText: "Franja verda", badgeClass: "badge-green" },
+    orange: { label: "Franja taronja", statusText: "Franja taronja", badgeClass: "badge-orange" },
+    red: { label: "Franja vermella", statusText: "Franja vermella", badgeClass: "badge-red" },
+};
+
+const BUTTON_LABELS = {
+    done: "Fet",
+    edit: "Editar franja",
+    omit: "Ometre avui"
+};
