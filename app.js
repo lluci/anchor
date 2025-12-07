@@ -80,6 +80,72 @@ document.addEventListener("DOMContentLoaded", () => {
         return h * 60 + m;
     }
 
+    // Global Loop
+    const globalUpdate = () => {
+        document.querySelectorAll(".habit-card").forEach(card => {
+            updateNowIndicator(card);
+            checkExpiry(card);
+        });
+    };
+
+    setInterval(globalUpdate, 60000); // 1 minute
+
+    // Test Mode Logic
+    const testToggle = document.getElementById("test-mode-toggle");
+    const testRadios = document.getElementsByName("test-time");
+
+    function getEffectiveTime() {
+        const now = new Date();
+        // If toggle is checked, force time to selected radio value
+        if (testToggle && testToggle.checked) {
+            const selected = document.querySelector('input[name="test-time"]:checked');
+            if (selected) {
+                const [h, m] = selected.value.split(":").map(Number);
+                now.setHours(h);
+                now.setMinutes(m);
+                now.setSeconds(0);
+            }
+        }
+        return now;
+    }
+
+    if (testToggle) {
+
+        // Apply Configuration from config.js
+        if (typeof TEST_MODE_CONFIG !== "undefined") {
+            testToggle.checked = TEST_MODE_CONFIG.enabled;
+
+            // Set initial radio
+            if (TEST_MODE_CONFIG.initialTime) {
+                const radioToSelect = document.querySelector(`input[name="test-time"][value="${TEST_MODE_CONFIG.initialTime}"]`);
+                if (radioToSelect) radioToSelect.checked = true;
+            }
+
+            // If enabled via config, trigger update
+            if (TEST_MODE_CONFIG.enabled) {
+                // We need to wait for cards to be rendered? 
+                // No, they are rendered above synchronously.
+                // call this after a micro-tick just to be safe or immediately
+                setTimeout(globalUpdate, 0);
+            }
+        }
+
+        testToggle.addEventListener("change", () => {
+            // Immediate update when toggled
+            globalUpdate();
+        });
+
+        if (testRadios) {
+            testRadios.forEach(radio => {
+                radio.addEventListener("change", () => {
+                    if (testToggle.checked) globalUpdate();
+                });
+            });
+        }
+    }
+
+    // --- REPLACED HELPERS TO USE getEffectiveTime ---
+
     function checkExpiry(card) {
         if (card.dataset.state !== "pending") return;
         if (card.dataset.edited === "true") return; // Skip if manually edited
@@ -88,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cfg = HABIT_CONFIG[id];
         if (!cfg) return;
 
-        const now = new Date();
+        const now = getEffectiveTime(); // CHANGED
         const currentM = now.getHours() * 60 + now.getMinutes();
         const redEndM = toMinutes(cfg.redEnd);
 
@@ -105,6 +171,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Disable "Fet" button
             if (btnFet) btnFet.disabled = true;
+        } else {
+            // Not expired (or "un-expired" if we went back in time via Test Mode)
+            // Ensure we reset to normal pending state if it was previously expired
+            const badge = card.querySelector(".js-badge-window");
+            const btnFet = card.querySelector(".js-btn-fet");
+
+            // Hide badge (unless edited, but this function exits early if edited)
+            // Double check dataset logic: if we are here, edited is NOT true.
+            badge.style.visibility = "hidden";
+
+            // Re-enable button
+            if (btnFet) btnFet.disabled = false;
         }
     }
 
@@ -116,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const startM = toMinutes(cfg.start);
         const redEndM = toMinutes(cfg.redEnd);
 
-        const now = new Date();
+        const now = getEffectiveTime(); // CHANGED
         const currentM = now.getHours() * 60 + now.getMinutes();
 
         const indicator = card.querySelector(".now-indicator");
@@ -135,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getCurrentWindow(cfg) {
-        const now = new Date();
+        const now = getEffectiveTime(); // CHANGED
         const currentM = now.getHours() * 60 + now.getMinutes();
 
         const greenEndM = toMinutes(cfg.greenEnd);
@@ -278,13 +356,5 @@ document.addEventListener("DOMContentLoaded", () => {
         const cardElement = renderHabitCard(habitId, config);
         container.appendChild(cardElement);
     });
-
-    // Global Loop
-    setInterval(() => {
-        document.querySelectorAll(".habit-card").forEach(card => {
-            updateNowIndicator(card);
-            checkExpiry(card);
-        });
-    }, 60000); // 1 minute
 
 });

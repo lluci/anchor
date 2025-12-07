@@ -37,3 +37,8 @@ const BUTTON_LABELS = {
     omit: "Ometre avui",
     edited: "Editat"
 };
+
+const TEST_MODE_CONFIG = {
+    enabled: true, // Set to true to start in Test Mode
+    initialTime: "13:45" // "13:45", "14:45", or "15:45"
+};
