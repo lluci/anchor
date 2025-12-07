@@ -195,11 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const badge = card.querySelector(".js-badge-window");
 
         // --- DONE / OMIT BUTTONS ---
-        // Enabled ONLY if: (Pending) AND (Phase=Active OR Edited)
+        // Enabled ONLY if: (Pending) AND (Phase=Active)
         // If Phase=Future -> Disabled
-        // If Phase=Expired -> Disabled (unless Edited)
+        // If Phase=Expired -> Disabled (even if Edited, per user request)
         if (state === "pending") {
-            if (phase === "active" || isEdited) {
+            if (phase === "active") {
                 if (btnFet) btnFet.disabled = false;
                 if (btnOmit) btnOmit.disabled = false;
             } else {
@@ -377,7 +377,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         btnEdit.addEventListener("click", () => {
-            const current = card.dataset.window || "green";
+            let current = card.dataset.window;
+
+            // If first time editing, ignore the stale dataset.window (default "green")
+            // and start cycling from the ACTUAL current visual window.
+            if (card.dataset.edited !== "true") {
+                current = getCurrentWindow(cfg);
+            }
+
             const next = cycleWindow(current);
             card.dataset.window = next;
 
