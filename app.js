@@ -33,16 +33,24 @@ document.addEventListener("DOMContentLoaded", () => {
             // Pending, normal mode
             card.classList.remove("skipped");
             completedInfo.style.visibility = "hidden";
+            badge.style.visibility = "hidden"; // Hide status badge until done
 
             statusLine.innerHTML = `Estat actual: <strong>${config.statusText}</strong> – franja activa.`;
+
+            // ... checkboxes ...
 
             btnFet.disabled = false;
             btnEdit.disabled = false;
             btnOmit.disabled = false;
+
+            // Check if expired to show red badge immediately
+            checkExpiry(card);
+
         } else if (state === "done") {
             // Completed
             card.classList.remove("skipped");
             completedInfo.style.visibility = "visible";
+            badge.style.visibility = "visible"; // Show status badge
             statusLine.textContent = `Hàbit completat en ${config.label.toLowerCase()}.`;
 
             btnFet.disabled = true;
@@ -65,6 +73,29 @@ document.addEventListener("DOMContentLoaded", () => {
     function toMinutes(timeStr) {
         const [h, m] = timeStr.split(":").map(Number);
         return h * 60 + m;
+    }
+
+    function checkExpiry(card) {
+        if (card.dataset.state !== "pending") return;
+
+        const id = card.dataset.habitId;
+        const cfg = HABIT_CONFIG[id];
+        if (!cfg) return;
+
+        const now = new Date();
+        const currentM = now.getHours() * 60 + now.getMinutes();
+        const redEndM = toMinutes(cfg.redEnd);
+
+        if (currentM > redEndM) {
+            // Expired! Show red badge
+            const badge = card.querySelector(".js-badge-window");
+            const redConfig = WINDOW_VARIANTS["red"];
+
+            badge.classList.remove("badge-green", "badge-orange", "badge-red");
+            badge.classList.add(redConfig.badgeClass);
+            badge.textContent = redConfig.label;
+            badge.style.visibility = "visible";
+        }
     }
 
     function updateNowIndicator(card) {
@@ -91,6 +122,19 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             indicator.style.display = "none";
         }
+    }
+
+    function getCurrentWindow(cfg) {
+        const now = new Date();
+        const currentM = now.getHours() * 60 + now.getMinutes();
+
+        // We use toMinutes from the helper scope
+        const greenEndM = toMinutes(cfg.greenEnd);
+        const orangeEndM = toMinutes(cfg.orangeEnd);
+
+        if (currentM < greenEndM) return "green";
+        if (currentM < orangeEndM) return "orange";
+        return "red";
     }
 
     function renderHabitCard(id, cfg) {
@@ -186,6 +230,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         btnFet.addEventListener("click", () => {
             card.dataset.state = "done";
+
+            // Sync status window with current time
+            card.dataset.window = getCurrentWindow(cfg);
+
             updateCardUI(card);
         });
 
@@ -224,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(() => {
         document.querySelectorAll(".habit-card").forEach(card => {
             updateNowIndicator(card);
+            checkExpiry(card);
         });
     }, 60000); // 1 minute
 
