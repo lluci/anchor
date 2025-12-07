@@ -311,13 +311,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // Time ruler
         const ruler = card.querySelector(".time-ruler");
         if (ruler) {
-            const startHour = Math.floor(minTime / 60);
-            const endHour = Math.ceil(maxTime / 60);
-
+            // Generate ticks every 30 minutes from minTime to maxTime
             let rulerHtml = "";
-            for (let h = startHour; h <= endHour; h++) {
-                const hourStr = h.toString().padStart(2, '0') + ":00";
-                rulerHtml += `<span>${hourStr}</span>`;
+            for (let m = minTime; m <= maxTime; m += 30) {
+                const h = Math.floor(m / 60);
+                const min = m % 60;
+                const timeStr = `${h.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+                rulerHtml += `<span>${timeStr}</span>`;
             }
             ruler.innerHTML = rulerHtml;
         }

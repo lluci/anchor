@@ -3,14 +3,14 @@ const HABIT_CONFIG = {
         label: "Dormir",
         start: "07:00",
         greenEnd: "08:00",
-        orangeEnd: "09:00",
-        redEnd: "10:00",
+        orangeEnd: "08:30",
+        redEnd: "09:00",
         icon: "😴",
     },
     dinar: {
         label: "Dinar",
         start: "13:00",
-        greenEnd: "14:30",
+        greenEnd: "14:00",
         orangeEnd: "15:00",
         redEnd: "16:00",
         icon: "🍽",
@@ -41,5 +41,5 @@ const BUTTON_LABELS = {
 const TEST_MODE_CONFIG = {
     enabled: true, // Set to true to start in Test Mode
     isVisible: true, // Set to false to hide the panel entirely
-    initialTime: "13:45" // "13:45", "14:45", or "15:45"
+    initialTime: "15:45" // "13:45", "14:45", or "15:45"
 };
