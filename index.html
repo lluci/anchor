@@ -1,1 +1,498 @@
+<!DOCTYPE html>
+<html lang="ca">
 
+<head>
+    <meta charset="UTF-8" />
+    <title>Anchor – Panell del dia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f7;
+            color: #111;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin: 0 0 12px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .habit-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px 12px 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e1e1e6;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+
+        .habit-card.skipped {
+            opacity: 0.6;
+        }
+
+        .habit-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .habit-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .habit-name {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .timeline {
+            margin: 4px 0 6px;
+        }
+
+        .timeline-bar {
+            position: relative;
+            display: flex;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        .seg-green {
+            flex: 3;
+            background: #c8f7c5;
+        }
+
+        .seg-orange {
+            flex: 2;
+            background: #ffe7b3;
+        }
+
+        .seg-red {
+            flex: 1;
+            background: #ffc4c4;
+        }
+
+        .now-indicator {
+            position: absolute;
+            top: -3px;
+            bottom: -3px;
+            width: 2px;
+            background: #111;
+            left: 30%;
+            /* placeholder, sense lògica real encara */
+            opacity: 0.7;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .status-line {
+            font-size: 0.8rem;
+            color: #444;
+            margin: 4px 0 8px;
+        }
+
+        .status-line strong {
+            font-weight: 600;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: 1px solid #d0d0d7;
+            background: #f9f9fb;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+            min-width: 72px;
+        }
+
+        .btn-ghost {
+            background: transparent;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .badge-window {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            border: 1px solid transparent;
+        }
+
+        .badge-green {
+            background: #e6fbe4;
+            border-color: #b4e3b2;
+        }
+
+        .badge-orange {
+            background: #fff1d6;
+            border-color: #f3cd84;
+        }
+
+        .badge-red {
+            background: #ffe1e1;
+            border-color: #f1a2a2;
+        }
+
+        .status-completed {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #111;
+        }
+
+        .skipped-label {
+            font-size: 0.8rem;
+            color: #aa0000;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e7e7ec;
+            margin: 0 0 10px;
+        }
+
+        .timeline {
+            margin: 4px 0 6px;
+        }
+
+        /* NOVA PART: regla horària */
+        .time-ruler {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 4px;
+            padding: 0 2px;
+        }
+
+        /* línia de base del regle */
+        .time-ruler::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -2px;
+            height: 1px;
+            background: #ccc;
+        }
+
+        /* ticks de mitja hora – decoratiu, no perfecte però fa l’efecte */
+        .time-ruler::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -3px;
+            height: 5px;
+            background-image: repeating-linear-gradient(to right,
+                    transparent 0,
+                    transparent calc(25% - 1px),
+                    #ccc calc(25% - 1px),
+                    #ccc 25%);
+            opacity: 0.6;
+        }
+
+        /* barra de franges (a sota del regle) */
+        .timeline-bar {
+            position: relative;
+            display: flex;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #ddd;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <h1>Anchor – Avui</h1>
+        <div class="subtitle">Panell d’hàbits del dia (prototip local, sense dades reals).</div>
+
+        <!-- HABIT CARD TEMPLATE EXAMPLE -->
+        <div class="habit-card" data-habit-id="dormir" data-window="green" data-state="pending">
+            <div class="habit-card-header">
+                <div class="habit-icon">😴</div>
+                <div class="habit-name">Dormir</div>
+            </div>
+
+            <div class="timeline">
+                <div class="time-ruler"></div> <!-- ← Aquí el JS posarà les hores -->
+
+                <div class="timeline-bar">
+                    <div class="seg-green"></div>
+                    <div class="seg-orange"></div>
+                    <div class="seg-red"></div>
+                    <div class="now-indicator"></div>
+                </div>
+            </div>
+
+            <div class="status-line js-status-line">
+                Estat actual: <strong>Franja verda</strong> – franja ideal oberta.
+            </div>
+
+            <div class="buttons-row">
+                <button class="btn btn-primary js-btn-fet">Fet</button>
+                <button class="btn btn-ghost js-btn-edit">Editar franja</button>
+                <button class="btn js-btn-omit">Ometre avui</button>
+            </div>
+
+            <div class="meta-row">
+                <div class="status-completed js-completed-info" style="visibility:hidden;">
+                    <span class="status-dot"></span>
+                    <span>Fet</span>
+                </div>
+                <div class="badge-window js-badge-window badge-green">Franja verda</div>
+            </div>
+        </div>
+
+        <div class="habit-card" data-habit-id="dinar" data-window="green" data-state="pending">
+            <div class="habit-card-header">
+                <div class="habit-icon">🍽</div>
+                <div class="habit-name">Dinar</div>
+            </div>
+
+            <div class="timeline">
+                <div class="time-ruler"></div> <!-- ← Aquí el JS posarà les hores -->
+
+                <div class="timeline-bar">
+                    <div class="seg-green"></div>
+                    <div class="seg-orange"></div>
+                    <div class="seg-red"></div>
+                    <div class="now-indicator"></div>
+                </div>
+            </div>
+
+            <div class="status-line js-status-line">
+                Estat actual: <strong>Franja verda</strong> – franja ideal oberta.
+            </div>
+
+            <div class="buttons-row">
+                <button class="btn btn-primary js-btn-fet">Fet</button>
+                <button class="btn btn-ghost js-btn-edit">Editar franja</button>
+                <button class="btn js-btn-omit">Ometre avui</button>
+            </div>
+
+            <div class="meta-row">
+                <div class="status-completed js-completed-info" style="visibility:hidden;">
+                    <span class="status-dot"></span>
+                    <span>Fet</span>
+                </div>
+                <div class="badge-window js-badge-window badge-green">Franja verda</div>
+            </div>
+        </div>
+
+        <div class="habit-card" data-habit-id="sopar" data-window="green" data-state="pending">
+            <div class="habit-card-header">
+                <div class="habit-icon">🍲</div>
+                <div class="habit-name">Sopar</div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-bar">
+                    <div class="seg-green"></div>
+                    <div class="seg-orange"></div>
+                    <div class="seg-red"></div>
+                    <div class="now-indicator"></div>
+                </div>
+                <div class="timeline-labels">
+                    <span>Ideal</span>
+                    <span>Acceptable</span>
+                    <span>Límit</span>
+                </div>
+            </div>
+
+            <div class="status-line js-status-line">
+                Estat actual: <strong>Franja verda</strong> – franja ideal oberta.
+            </div>
+
+            <div class="buttons-row">
+                <button class="btn btn-primary js-btn-fet">Fet</button>
+                <button class="btn btn-ghost js-btn-edit">Editar franja</button>
+                <button class="btn js-btn-omit">Ometre avui</button>
+            </div>
+
+            <div class="meta-row">
+                <div class="status-completed js-completed-info" style="visibility:hidden;">
+                    <span class="status-dot"></span>
+                    <span>Fet</span>
+                </div>
+                <div class="badge-window js-badge-window badge-green">Franja verda</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Helper: map window key → label and badge classes
+        const WINDOW_CONFIG = {
+            green: { label: "Franja verda", statusText: "Franja verda", badgeClass: "badge-green" },
+            orange: { label: "Franja taronja", statusText: "Franja taronja", badgeClass: "badge-orange" },
+            red: { label: "Franja vermella", statusText: "Franja vermella", badgeClass: "badge-red" },
+        };
+
+        function cycleWindow(windowKey) {
+            if (windowKey === "green") return "orange";
+            if (windowKey === "orange") return "red";
+            return "green";
+        }
+
+        function updateCardUI(card) {
+            const windowKey = card.dataset.window;
+            const state = card.dataset.state;
+
+            const statusLine = card.querySelector(".js-status-line");
+            const completedInfo = card.querySelector(".js-completed-info");
+            const badge = card.querySelector(".js-badge-window");
+            const btnFet = card.querySelector(".js-btn-fet");
+            const btnEdit = card.querySelector(".js-btn-edit");
+            const btnOmit = card.querySelector(".js-btn-omit");
+
+            const config = WINDOW_CONFIG[windowKey];
+
+            // Reset badge classes
+            badge.classList.remove("badge-green", "badge-orange", "badge-red");
+            badge.classList.add(config.badgeClass);
+            badge.textContent = config.label;
+
+            if (state === "pending") {
+                // Pending, normal mode
+                card.classList.remove("skipped");
+                completedInfo.style.visibility = "hidden";
+
+                statusLine.textContent = `Estat actual: ${config.statusText} — franja activa.`;
+
+                btnFet.disabled = false;
+                btnEdit.disabled = false;
+                btnOmit.disabled = false;
+            } else if (state === "done") {
+                // Completed
+                card.classList.remove("skipped");
+                completedInfo.style.visibility = "visible";
+                statusLine.textContent = `Hàbit completat en ${config.label.toLowerCase()}.`;
+
+                btnFet.disabled = true;
+                btnOmit.disabled = true;
+                // Editar franja continua actiu
+                btnEdit.disabled = false;
+            } else if (state === "skipped") {
+                // Skipped
+                card.classList.add("skipped");
+                completedInfo.style.visibility = "hidden";
+                statusLine.innerHTML = `<span class="skipped-label">Omet avui</span>`;
+
+                btnFet.disabled = true;
+                btnEdit.disabled = true;
+                btnOmit.disabled = true;
+            }
+        }
+
+        document.querySelectorAll(".habit-card").forEach(card => {
+            updateCardUI(card);
+
+            const btnFet = card.querySelector(".js-btn-fet");
+            const btnEdit = card.querySelector(".js-btn-edit");
+            const btnOmit = card.querySelector(".js-btn-omit");
+
+            btnFet.addEventListener("click", () => {
+                card.dataset.state = "done";
+                updateCardUI(card);
+            });
+
+            btnEdit.addEventListener("click", () => {
+                const current = card.dataset.window || "green";
+                const next = cycleWindow(current);
+                card.dataset.window = next;
+
+                // Si ja està "done", considerem que és una edició de franja
+                if (card.dataset.state === "done") {
+                    updateCardUI(card);
+                } else if (card.dataset.state === "pending") {
+                    updateCardUI(card);
+                }
+            });
+
+            btnOmit.addEventListener("click", () => {
+                card.dataset.state = "skipped";
+                updateCardUI(card);
+            });
+        });
+    </script>
+</body>
+
+</html>
