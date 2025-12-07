@@ -3,7 +3,7 @@ A personal habits tracker based on temporal anchors
 
 ----
 
-# Anchor — Technical Overview
+# Technical Overview
 
 This document defines the conceptual and functional model of Anchor, a habit-rhythm system based on temporal windows, weekly planning, and low-friction daily interaction. It includes system behavior, state models, notification logic, and core rules for data integrity and adaptation.
 
