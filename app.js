@@ -6,9 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // WINDOW_VARIANTS is defined in config.js
 
     function cycleWindow(windowKey) {
-        if (windowKey === "green") return "orange";
-        if (windowKey === "orange") return "red";
-        return "green";
+        if (windowKey === "green") return "red"; // Start reverse cycle
+        if (windowKey === "orange") return "green";
+        if (windowKey === "red") return "orange";
+        return "green"; // Default fallback
     }
 
     function updateCardUI(card) {
@@ -33,19 +34,23 @@ document.addEventListener("DOMContentLoaded", () => {
             // Pending, normal mode
             card.classList.remove("skipped");
             completedInfo.style.visibility = "hidden";
-            badge.style.visibility = "hidden"; // Hide status badge until done
+
+            // Show badge if manually edited, otherwise hide
+            const isEdited = card.dataset.edited === "true";
+            badge.style.visibility = isEdited ? "visible" : "hidden";
 
             statusLine.innerHTML = `Estat actual: <strong>${config.statusText}</strong> – franja activa.`;
 
-            // ... checkboxes ...
-
+            // Reset buttons (might have been disabled by expiry)
             btnFet.disabled = false;
             btnEdit.disabled = false;
             btnOmit.disabled = false;
 
             // Check if expired to show red badge immediately
-            checkExpiry(card);
-
+            // But ONLY if not manually edited
+            if (!isEdited) {
+                checkExpiry(card);
+            }
         } else if (state === "done") {
             // Completed
             card.classList.remove("skipped");
@@ -77,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function checkExpiry(card) {
         if (card.dataset.state !== "pending") return;
+        if (card.dataset.edited === "true") return; // Skip if manually edited
 
         const id = card.dataset.habitId;
         const cfg = HABIT_CONFIG[id];
@@ -89,12 +95,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentM > redEndM) {
             // Expired! Show red badge
             const badge = card.querySelector(".js-badge-window");
+            const btnFet = card.querySelector(".js-btn-fet");
             const redConfig = WINDOW_VARIANTS["red"];
 
             badge.classList.remove("badge-green", "badge-orange", "badge-red");
             badge.classList.add(redConfig.badgeClass);
             badge.textContent = redConfig.label;
             badge.style.visibility = "visible";
+
+            // Disable "Fet" button
+            if (btnFet) btnFet.disabled = true;
         }
     }
 
@@ -128,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = new Date();
         const currentM = now.getHours() * 60 + now.getMinutes();
 
-        // We use toMinutes from the helper scope
         const greenEndM = toMinutes(cfg.greenEnd);
         const orangeEndM = toMinutes(cfg.orangeEnd);
 
@@ -174,33 +183,31 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="status-dot"></span>
                     <span>${BUTTON_LABELS.done}</span>
                 </div>
-                <div class="badge-window js-badge-window badge-green"></div>
+                <div>
+                     <div class="badge-window badge-edited js-badge-edited" style="display:none; padding: 2px 6px; border-radius: 4px;">${BUTTON_LABELS.edited}</div>
+                     <div class="badge-window js-badge-window badge-green" style="display:inline-block"></div>
+                </div>
             </div>
         `;
 
         // --- Timeline Logic ---
-        // 1. Convert times to minutes
         const startM = toMinutes(cfg.start);
         const greenEndM = toMinutes(cfg.greenEnd);
         const orangeEndM = toMinutes(cfg.orangeEnd);
         const redEndM = toMinutes(cfg.redEnd);
 
-        // 2. Define full timeline span
         const minTime = startM;
         const maxTime = redEndM;
         const total = maxTime - minTime;
 
-        // 3. Compute window lengths
         const greenLen = greenEndM - startM;
         const orangeLen = orangeEndM - greenEndM;
         const redLen = redEndM - orangeEndM;
 
-        // 4. Convert durations to percentages
         const greenPct = (greenLen / total) * 100;
         const orangePct = (orangeLen / total) * 100;
         const redPct = (redLen / total) * 100;
 
-        // Apply widths
         const segGreen = card.querySelector(".seg-green");
         const segOrange = card.querySelector(".seg-orange");
         const segRed = card.querySelector(".seg-red");
@@ -209,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (segOrange) segOrange.style.flex = `0 0 ${orangePct}%`;
         if (segRed) segRed.style.flex = `0 0 ${redPct}%`;
 
-        // 5. Generate the time ruler
+        // Time ruler
         const ruler = card.querySelector(".time-ruler");
         if (ruler) {
             const startHour = Math.floor(minTime / 60);
@@ -227,13 +234,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnFet = card.querySelector(".js-btn-fet");
         const btnEdit = card.querySelector(".js-btn-edit");
         const btnOmit = card.querySelector(".js-btn-omit");
+        const badgeEdited = card.querySelector(".js-badge-edited");
 
         btnFet.addEventListener("click", () => {
             card.dataset.state = "done";
-
-            // Sync status window with current time
             card.dataset.window = getCurrentWindow(cfg);
-
             updateCardUI(card);
         });
 
@@ -241,6 +246,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const current = card.dataset.window || "green";
             const next = cycleWindow(current);
             card.dataset.window = next;
+
+            // Mark as manually edited
+            card.dataset.edited = "true";
+
+            // Show "Edited" badge
+            if (badgeEdited) badgeEdited.style.display = "inline-block";
 
             if (card.dataset.state === "done" || card.dataset.state === "pending") {
                 updateCardUI(card);
@@ -268,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(cardElement);
     });
 
-    // Global Loop to update indicators every minute
+    // Global Loop
     setInterval(() => {
         document.querySelectorAll(".habit-card").forEach(card => {
             updateNowIndicator(card);

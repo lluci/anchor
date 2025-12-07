@@ -34,5 +34,6 @@ const WINDOW_VARIANTS = {
 const BUTTON_LABELS = {
     done: "Fet",
     edit: "Editar franja",
-    omit: "Ometre avui"
+    omit: "Ometre avui",
+    edited: "Editat"
 };
