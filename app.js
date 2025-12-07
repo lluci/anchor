@@ -113,6 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Apply Configuration from config.js
         if (typeof TEST_MODE_CONFIG !== "undefined") {
+            // Visibility Check
+            if (TEST_MODE_CONFIG.isVisible === false) {
+                const devTools = document.getElementById("dev-tools");
+                if (devTools) devTools.style.display = "none";
+            }
+
             testToggle.checked = TEST_MODE_CONFIG.enabled;
 
             // Set initial radio
@@ -128,6 +134,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 // call this after a micro-tick just to be safe or immediately
                 setTimeout(globalUpdate, 0);
             }
+        }
+
+        const closeBtn = document.getElementById("dev-tools-close");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => {
+                const devTools = document.getElementById("dev-tools");
+                if (devTools) devTools.style.display = "none";
+            });
         }
 
         testToggle.addEventListener("change", () => {

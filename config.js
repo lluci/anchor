@@ -40,5 +40,6 @@ const BUTTON_LABELS = {
 
 const TEST_MODE_CONFIG = {
     enabled: true, // Set to true to start in Test Mode
+    isVisible: true, // Set to false to hide the panel entirely
     initialTime: "13:45" // "13:45", "14:45", or "15:45"
 };
