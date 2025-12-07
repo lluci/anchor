@@ -61,6 +61,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Helper components
+    function toMinutes(timeStr) {
+        const [h, m] = timeStr.split(":").map(Number);
+        return h * 60 + m;
+    }
+
+    function updateNowIndicator(card) {
+        const id = card.dataset.habitId;
+        const cfg = HABIT_CONFIG[id];
+        if (!cfg) return;
+
+        const startM = toMinutes(cfg.start);
+        const redEndM = toMinutes(cfg.redEnd);
+
+        const now = new Date();
+        const currentM = now.getHours() * 60 + now.getMinutes();
+
+        const indicator = card.querySelector(".now-indicator");
+        if (!indicator) return;
+
+        if (currentM >= startM && currentM <= redEndM) {
+            const total = redEndM - startM;
+            const elapsed = currentM - startM;
+            const pct = (elapsed / total) * 100;
+
+            indicator.style.display = "block";
+            indicator.style.left = `${pct}%`;
+        } else {
+            indicator.style.display = "none";
+        }
+    }
+
     function renderHabitCard(id, cfg) {
         const card = document.createElement("div");
         card.className = "habit-card";
@@ -104,11 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- Timeline Logic ---
         // 1. Convert times to minutes
-        function toMinutes(timeStr) {
-            const [h, m] = timeStr.split(":").map(Number);
-            return h * 60 + m;
-        }
-
         const startM = toMinutes(cfg.start);
         const greenEndM = toMinutes(cfg.greenEnd);
         const orangeEndM = toMinutes(cfg.orangeEnd);
@@ -180,6 +207,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Initial UI Update
         updateCardUI(card);
 
+        // Initial Indicator Update
+        updateNowIndicator(card);
+
         return card;
     }
 
@@ -189,5 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const cardElement = renderHabitCard(habitId, config);
         container.appendChild(cardElement);
     });
+
+    // Global Loop to update indicators every minute
+    setInterval(() => {
+        document.querySelectorAll(".habit-card").forEach(card => {
+            updateNowIndicator(card);
+        });
+    }, 60000); // 1 minute
 
 });
