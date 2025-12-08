@@ -6,6 +6,7 @@ const HABIT_CONFIG = {
         orangeEnd: "08:30",
         redEnd: "09:00",
         icon: "😴",
+        isEssential: true
     },
     dinar: {
         label: "Dinar",
@@ -14,6 +15,7 @@ const HABIT_CONFIG = {
         orangeEnd: "15:00",
         redEnd: "16:00",
         icon: "🍽",
+        isEssential: true
     },
     sopar: {
         label: "Sopar",
@@ -22,6 +24,7 @@ const HABIT_CONFIG = {
         orangeEnd: "21:00",
         redEnd: "22:00",
         icon: "🍲",
+        isEssential: true
     },
 };
 
@@ -44,7 +47,9 @@ const BUTTON_LABELS = {
     skipToday: "Marcar dia com a No Disponible",
     restoreToday: "Restaurar",
     normalDay: "Dia Normal",
-    specialDay: "Dia Especial"
+    specialDay: "Dia Especial",
+    essentialOnly: "Indispensables",
+    allTasks: "Totes (Especial)"
 };
 
 const SKIP_REASONS = {

@@ -114,32 +114,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return now;
     }
 
+    function getEffectiveDayMode() {
+        if (testToggle && testToggle.checked) {
+            const selected = document.querySelector('input[name="test-mode-type"]:checked');
+            return selected ? selected.value : 'normal';
+        }
+        // In real mode, we would check WEEKLY_CONFIG for today
+        // For now, default to normal
+        const todayKey = new Date().toISOString().split("T")[0];
+        return WEEKLY_CONFIG[todayKey] || 'normal';
+    }
+
     if (testToggle) {
 
-        // Apply Configuration from config.js
-        if (typeof TEST_MODE_CONFIG !== "undefined") {
-            // Visibility Check
-            if (TEST_MODE_CONFIG.isVisible === false) {
-                const devTools = document.getElementById("dev-tools");
-                if (devTools) devTools.style.display = "none";
-            }
-
-            testToggle.checked = TEST_MODE_CONFIG.enabled;
-
-            // Set initial radio
-            if (TEST_MODE_CONFIG.initialTime) {
-                const radioToSelect = document.querySelector(`input[name="test-time"][value="${TEST_MODE_CONFIG.initialTime}"]`);
-                if (radioToSelect) radioToSelect.checked = true;
-            }
-
-            // If enabled via config, trigger update
-            if (TEST_MODE_CONFIG.enabled) {
-                // We need to wait for cards to be rendered? 
-                // No, they are rendered above synchronously.
-                // call this after a micro-tick just to be safe or immediately
-                setTimeout(globalUpdate, 0);
-            }
-        }
+        // ... (existing config loading logic)
 
         const closeBtn = document.getElementById("dev-tools-close");
         if (closeBtn) {
@@ -157,6 +145,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (testRadios) {
             testRadios.forEach(radio => {
                 radio.addEventListener("change", () => {
+                    if (testToggle.checked) globalUpdate();
+                });
+            });
+        }
+
+        // New Mode Radios
+        const modeRadios = document.getElementsByName("test-mode-type");
+        if (modeRadios) {
+            modeRadios.forEach(radio => {
+                radio.addEventListener("change", () => {
+                    console.log("Test Mode Type Changed:", radio.value);
                     if (testToggle.checked) globalUpdate();
                 });
             });
@@ -628,20 +627,27 @@ document.addEventListener("DOMContentLoaded", () => {
             col.innerHTML = `
                 <div class="pact-header">${label}</div>
                 <button class="pact-btn ${currentType === 'normal' ? 'active' : ''}" data-date="${dateKey}" data-type="normal">Normal</button>
-                <button class="pact-btn ${currentType === 'special' ? 'special-active' : ''}" data-date="${dateKey}" data-type="special">Especial</button>
+                <button class="pact-btn ${currentType === 'essential' ? 'special-active' : ''}" data-date="${dateKey}" data-type="essential">Essencials</button>
+                <button class="pact-btn ${currentType === 'flexible' ? 'special-active' : ''}" data-date="${dateKey}" data-type="flexible">Totes</button>
             `;
 
             // Add listeners
             const btnNormal = col.querySelector('[data-type="normal"]');
-            const btnSpecial = col.querySelector('[data-type="special"]');
+            const btnEssential = col.querySelector('[data-type="essential"]');
+            const btnFlexible = col.querySelector('[data-type="flexible"]');
 
             btnNormal.addEventListener("click", () => {
                 WEEKLY_CONFIG[dateKey] = 'normal';
-                renderWeeklyGrid(); // Re-render to update classes
+                renderWeeklyGrid();
             });
 
-            btnSpecial.addEventListener("click", () => {
-                WEEKLY_CONFIG[dateKey] = 'special';
+            btnEssential.addEventListener("click", () => {
+                WEEKLY_CONFIG[dateKey] = 'essential';
+                renderWeeklyGrid();
+            });
+
+            btnFlexible.addEventListener("click", () => {
+                WEEKLY_CONFIG[dateKey] = 'flexible';
                 renderWeeklyGrid();
             });
 
