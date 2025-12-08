@@ -398,6 +398,9 @@ document.addEventListener("DOMContentLoaded", () => {
             card.dataset.locked = "true"; // LOCK ON DONE
             card.dataset.window = getCurrentWindow(cfg);
             updateCardUI(card);
+
+            // DB Log
+            logHabitToDB(id, "done", card.dataset.window);
         });
 
         const btnAccept = card.querySelector(".js-btn-accept");
@@ -489,6 +492,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Here we would send to DB...
             console.log(`Saved habit ${id}: window=${card.dataset.window}`);
+
+            // DB Log (Treat 'edited' acceptable as 'done' or maybe 'edited' state?)
+            // Usually Accept implies Done in a specific window, manually set.
+            logHabitToDB(id, "done", `Edited: ${card.dataset.window}`);
         });
 
         // CANCEL (Revert)
@@ -548,10 +555,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             card.dataset.state = "skipped";
             card.dataset.skipReason = reason;
-            card.dataset.locked = "true"; // LOCK ON SKIP
 
-            updateCardUI(card);
+            // Lock UI
+            card.dataset.locked = "true";
+
             toggleSkipMode(false);
+            updateCardUI(card);
+
+            // DB Log
+            logHabitToDB(id, "skipped", reason);
         });
 
         // Initial UI Update
@@ -580,9 +592,83 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Weekly Pact State (In-memory for now)
-    // Key: YYYY-MM-DD, Value: 'normal' | 'special'
-    const WEEKLY_CONFIG = {};
+    // --- DATABASE INTEGRATION ---
+
+    // Weekly Pact State
+    // Key: YYYY-MM-DD, Value: 'normal' | 'essential' | 'flexible'
+    let WEEKLY_CONFIG = {};
+
+    // 1. Fetch Config on Load
+    async function loadConfig() {
+        if (!API_URL || API_URL.includes("YOUR_")) {
+            console.log("DB: No API URL configured. Using local defaults.");
+            // Render immediately with empty/default config
+            renderWeeklyGrid();
+            globalUpdate();
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}?action=getPact`);
+            const data = await response.json();
+            if (data.pact) {
+                WEEKLY_CONFIG = data.pact;
+                console.log("DB: Loaded Pact", WEEKLY_CONFIG);
+            }
+            renderWeeklyGrid();
+            globalUpdate(); // Update app state with new config
+        } catch (e) {
+            console.error("DB: Load Error", e);
+            renderWeeklyGrid(); // Fallback render
+        }
+    }
+
+    // 2. Save Config (Debounced or immediate)
+    async function savePactToDB(date, type) {
+        if (!API_URL || API_URL.includes("YOUR_")) return;
+
+        try {
+            // Optimistic update is already done in UI listeners
+            await fetch(API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "savePact", date, type })
+            });
+            console.log("DB: Saved Pact", date, type);
+        } catch (e) {
+            console.error("DB: Save Error", e);
+            // Revert? For now, just log.
+        }
+    }
+
+    // 3. Log Habit Action
+    async function logHabitToDB(habitId, state, detail = "") {
+        if (!API_URL || API_URL.includes("YOUR_")) return;
+
+        const date = getEffectiveTime().toISOString().split("T")[0];
+
+        try {
+            await fetch(API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "logHabit",
+                    date,
+                    habitId,
+                    state,
+                    detail
+                })
+            });
+            console.log("DB: Logged Habit", habitId, state);
+        } catch (e) {
+            console.error("DB: Log Error", e);
+        }
+    }
+
+    // Start App
+    loadConfig();
 
     function getNext7Days() {
         const days = [];
@@ -637,9 +723,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const refresh = () => renderWeeklyGrid();
 
-            btnNormal.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'normal'; refresh(); });
-            btnEssential.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'essential'; refresh(); });
-            btnFlexible.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'flexible'; refresh(); });
+            const updateAndSave = (type) => {
+                WEEKLY_CONFIG[dateKey] = type;
+                refresh();
+                savePactToDB(dateKey, type);
+            };
+
+            btnNormal.addEventListener("click", () => updateAndSave('normal'));
+            btnEssential.addEventListener("click", () => updateAndSave('essential'));
+            btnFlexible.addEventListener("click", () => updateAndSave('flexible'));
 
             grid.appendChild(col);
         }
@@ -783,6 +875,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log("Day Finished (Special Mode). Data:", summary.join(", "));
             alert("Dia finalitzat! Dades desades: " + summary.length + " hàbits.");
+
+            // DB Log Batch
+            summary.forEach(item => {
+                const [hId, hState] = item.split(": ");
+                logHabitToDB(hId, hState, "Special Mode Batch");
+            });
 
             // Disable finish button
             btnRow.querySelector("button").disabled = true;

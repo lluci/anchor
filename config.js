@@ -46,6 +46,9 @@ const HABIT_CONFIG = {
     },
 };
 
+// CONFIGURATION
+const API_URL = "https://script.google.com/macros/s/AKfycbynU-Vm_-ubA9hVBZQoN_JUAQlsax8NX_bweI6fOxv8mSnmV8uPLK8JZm41fR5zXwHN/exec";
+
 const WINDOW_VARIANTS = {
     green: { label: "Franja verda", statusText: "Franja verda", badgeClass: "badge-green" },
     orange: { label: "Franja taronja", statusText: "Franja taronja", badgeClass: "badge-orange" },
