@@ -122,19 +122,58 @@ document.addEventListener("DOMContentLoaded", () => {
         // Note: Assuming if one exists, test panel is active generally
 
         const closeBtn = document.getElementById("dev-tools-close");
+        const minimizedIndicator = document.getElementById("dev-tools-minimized");
+
+        function updateTestVisibility() {
+            const devTools = document.getElementById("dev-tools");
+            if (!devTools) return;
+
+            // Is override active?
+            const isTimeActive = testTimeToggle && testTimeToggle.checked;
+            const isDayActive = testDayToggle && testDayToggle.checked;
+            const isOverrideActive = isTimeActive || isDayActive;
+
+            // If panel is hidden, check if we need to show indicator
+            if (devTools.style.display === "none") {
+                if (minimizedIndicator) {
+                    minimizedIndicator.style.display = isOverrideActive ? "block" : "none";
+                }
+            } else {
+                // If panel is visible, hide indicator
+                if (minimizedIndicator) {
+                    minimizedIndicator.style.display = "none";
+                }
+            }
+        }
+
         if (closeBtn) {
             closeBtn.addEventListener("click", () => {
                 const devTools = document.getElementById("dev-tools");
                 if (devTools) devTools.style.display = "none";
+                updateTestVisibility();
+            });
+        }
+
+        if (minimizedIndicator) {
+            minimizedIndicator.addEventListener("click", () => {
+                const devTools = document.getElementById("dev-tools");
+                if (devTools) devTools.style.display = "block";
+                updateTestVisibility();
             });
         }
 
         if (testTimeToggle) {
-            testTimeToggle.addEventListener("change", () => globalUpdate());
+            testTimeToggle.addEventListener("change", () => {
+                globalUpdate();
+                updateTestVisibility();
+            });
         }
 
         if (testDayToggle) {
-            testDayToggle.addEventListener("change", () => globalUpdate());
+            testDayToggle.addEventListener("change", () => {
+                globalUpdate();
+                updateTestVisibility();
+            });
         }
 
         // APPLY CONFIG
@@ -143,6 +182,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (devTools) {
                 devTools.style.display = TEST_MODE_CONFIG.isVisible ? "block" : "none";
             }
+            // Logic to sync indicator state on load
+            setTimeout(updateTestVisibility, 0);
             if (testTimeToggle) testTimeToggle.checked = TEST_MODE_CONFIG.defaultTimeOverride;
             if (testDayToggle) testDayToggle.checked = TEST_MODE_CONFIG.defaultDayOverride;
 
