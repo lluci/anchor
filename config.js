@@ -1,11 +1,11 @@
 const HABIT_CONFIG = {
     dormir: {
-        label: "Dormir",
+        label: "Llevar-se",// Wake up time
         start: "07:00",
         greenEnd: "08:00",
         orangeEnd: "08:30",
         redEnd: "09:00",
-        icon: "😴",
+        icon: "😃",
         isEssential: true
     },
     mati: {
