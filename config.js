@@ -39,7 +39,12 @@ const BUTTON_LABELS = {
     cancel: "Cancel·lar",
     edited: "Editat",
     confirmSkip: "Confirmar",
-    selectReason: "Selecciona motiu..."
+    selectReason: "Selecciona motiu...",
+    settingsData: "Configuració i Estadístiques",
+    skipToday: "Marcar dia com a No Disponible",
+    restoreToday: "Restaurar",
+    normalDay: "Dia Normal",
+    specialDay: "Dia Especial"
 };
 
 const SKIP_REASONS = {

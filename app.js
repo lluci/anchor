@@ -570,6 +570,133 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
+    // --- SETTINGS PANEL LOGIC ---
+
+    const btnSettings = document.getElementById("btn-settings");
+    const settingsOverlay = document.getElementById("settings-overlay");
+    const btnCloseSettings = document.getElementById("btn-close-settings");
+
+    if (btnSettings && settingsOverlay) {
+        btnSettings.addEventListener("click", () => {
+            settingsOverlay.style.display = "flex";
+            renderWeeklyGrid();
+        });
+
+        btnCloseSettings.addEventListener("click", () => {
+            settingsOverlay.style.display = "none";
+        });
+    }
+
+    // Weekly Pact State (In-memory for now)
+    // Key: YYYY-MM-DD, Value: 'normal' | 'special'
+    const WEEKLY_CONFIG = {};
+
+    function getNext7Days() {
+        const days = [];
+        const today = getEffectiveTime(); // Use test time if active
+
+        for (let i = 1; i <= 7; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() + i);
+            days.push(d);
+        }
+        return days;
+    }
+
+    function renderWeeklyGrid() {
+        const grid = document.getElementById("weekly-pact-grid");
+        if (!grid) return;
+
+        grid.innerHTML = "";
+        const days = getNext7Days();
+
+        const daysOfWeek = ["Dg", "Dl", "Dt", "Dc", "Dj", "Dv", "Ds"];
+
+        days.forEach(date => {
+            const dateKey = date.toISOString().split("T")[0];
+            const dayName = daysOfWeek[date.getDay()];
+            const dayNum = date.getDate();
+            const label = `${dayName} ${dayNum}`;
+
+            // Default to 'normal' if not set
+            if (!WEEKLY_CONFIG[dateKey]) WEEKLY_CONFIG[dateKey] = 'normal';
+            const currentType = WEEKLY_CONFIG[dateKey];
+
+            const col = document.createElement("div");
+            col.className = "pact-col";
+
+            col.innerHTML = `
+                <div class="pact-header">${label}</div>
+                <button class="pact-btn ${currentType === 'normal' ? 'active' : ''}" data-date="${dateKey}" data-type="normal">Normal</button>
+                <button class="pact-btn ${currentType === 'special' ? 'special-active' : ''}" data-date="${dateKey}" data-type="special">Especial</button>
+            `;
+
+            // Add listeners
+            const btnNormal = col.querySelector('[data-type="normal"]');
+            const btnSpecial = col.querySelector('[data-type="special"]');
+
+            btnNormal.addEventListener("click", () => {
+                WEEKLY_CONFIG[dateKey] = 'normal';
+                renderWeeklyGrid(); // Re-render to update classes
+            });
+
+            btnSpecial.addEventListener("click", () => {
+                WEEKLY_CONFIG[dateKey] = 'special';
+                renderWeeklyGrid();
+            });
+
+            grid.appendChild(col);
+        });
+    }
+
+    // --- SKIP TODAY LOGIC ---
+    const btnSkipToday = document.getElementById("btn-skip-today");
+    const statusSkipToday = document.getElementById("skip-today-status");
+    const btnRestoreToday = document.getElementById("btn-restore-today");
+    const mainContainer = document.getElementById("habit-container");
+
+    // Check if we need header disabled too? Ideally entire body except settings.
+    // But let's stick to disabling the container as requested.
+
+    function toggleTodaySkipped(skipped) {
+        if (skipped) {
+            mainContainer.classList.add("app-disabled");
+            btnSkipToday.style.display = "none";
+            statusSkipToday.style.display = "block";
+
+            // Should we show a big overlay on the main screen?
+            // "Dia No Disponible - Descansa"
+            let overlay = document.getElementById("today-skipped-overlay");
+            if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = "today-skipped-overlay";
+                overlay.className = "skip-day-overlay";
+                overlay.innerHTML = `<h3>Dia No Disponible</h3><p>Descansa i recupera't.</p>`;
+                document.body.appendChild(overlay);
+            }
+            overlay.style.display = "block";
+
+        } else {
+            mainContainer.classList.remove("app-disabled");
+            btnSkipToday.style.display = "block";
+            statusSkipToday.style.display = "none";
+
+            const overlay = document.getElementById("today-skipped-overlay");
+            if (overlay) overlay.style.display = "none";
+        }
+    }
+
+    if (btnSkipToday && btnRestoreToday) {
+        btnSkipToday.addEventListener("click", () => {
+            toggleTodaySkipped(true);
+        });
+
+        btnRestoreToday.addEventListener("click", (e) => {
+            e.preventDefault();
+            toggleTodaySkipped(false);
+        });
+    }
+
     // Main Render Loop
     Object.keys(HABIT_CONFIG).forEach(habitId => {
         const config = HABIT_CONFIG[habitId];
