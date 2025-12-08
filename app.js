@@ -67,7 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
             // Skipped
             card.classList.add("skipped");
             completedInfo.style.visibility = "hidden";
-            statusLine.innerHTML = `<span class="skipped-label">Omet avui</span>`;
+
+            const reasonKey = card.dataset.skipReason || "";
+            const reasonLabel = SKIP_REASONS[reasonKey] || reasonKey;
+
+            statusLine.innerHTML = `<span class="skipped-label">Omet avui</span> ${reasonLabel ? `– ${reasonLabel}` : ""}`;
 
             btnFet.disabled = true;
             btnEdit.disabled = true;
@@ -328,6 +332,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="btn btn-primary js-btn-accept" style="display:none; background-color: #4cd964; color: white; border: none;">${BUTTON_LABELS.accept}</button>
                 <button class="btn js-btn-cancel" style="display:none;">${BUTTON_LABELS.cancel}</button>
             </div>
+            
+            <div class="skip-ui js-skip-ui" style="display:none; margin-top: 10px;">
+                <select class="form-select js-skip-reason" style="margin-right: 5px; padding: 5px;">
+                    <option value="" disabled selected>${BUTTON_LABELS.selectReason}</option>
+                    ${Object.entries(SKIP_REASONS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
+                </select>
+                <button class="btn btn-warning js-btn-confirm-skip">${BUTTON_LABELS.confirmSkip}</button>
+                <button class="btn js-btn-cancel-skip">${BUTTON_LABELS.cancel}</button>
+            </div>
 
             <div class="meta-row">
                 <div class="status-completed js-completed-info" style="visibility:hidden;">
@@ -500,9 +513,52 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCardUI(card);
         });
 
+        // SKIP LOGIC
+        const skipUI = card.querySelector(".js-skip-ui");
+        const selectReason = card.querySelector(".js-skip-reason");
+        const btnConfirmSkip = card.querySelector(".js-btn-confirm-skip");
+        const btnCancelSkip = card.querySelector(".js-btn-cancel-skip");
+
+        // Toggle Skip Mode
+        const toggleSkipMode = (active) => {
+            if (active) {
+                btnFet.style.display = "none";
+                btnEdit.style.display = "none";
+                btnOmit.style.display = "none";
+                skipUI.style.display = "flex"; // or block
+                skipUI.style.alignItems = "center";
+                skipUI.style.gap = "5px";
+            } else {
+                btnFet.style.display = "inline-block";
+                btnEdit.style.display = "inline-block";
+                btnOmit.style.display = "inline-block";
+                skipUI.style.display = "none";
+            }
+        };
+
         btnOmit.addEventListener("click", () => {
+            toggleSkipMode(true);
+        });
+
+        btnCancelSkip.addEventListener("click", () => {
+            toggleSkipMode(false);
+            // Reset selection?
+            selectReason.selectedIndex = 0;
+        });
+
+        btnConfirmSkip.addEventListener("click", () => {
+            const reason = selectReason.value;
+            if (!reason) {
+                alert("Si us plau, selecciona un motiu.");
+                return;
+            }
+
             card.dataset.state = "skipped";
+            card.dataset.skipReason = reason;
+            card.dataset.locked = "true"; // LOCK ON SKIP
+
             updateCardUI(card);
+            toggleSkipMode(false);
         });
 
         // Initial UI Update

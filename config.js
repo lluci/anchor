@@ -37,7 +37,16 @@ const BUTTON_LABELS = {
     omit: "Ometre avui",
     accept: "Desar",
     cancel: "Cancel·lar",
-    edited: "Editat"
+    edited: "Editat",
+    confirmSkip: "Confirmar",
+    selectReason: "Selecciona motiu..."
+};
+
+const SKIP_REASONS = {
+    work_block: "Feina / Obligacions",
+    health_block: "Salut / Energia",
+    external_block: "Circumstàncies externes",
+    not_today: "Avui no"
 };
 
 const TEST_MODE_CONFIG = {
