@@ -9,31 +9,22 @@ const HABIT_CONFIG = {
         isEssential: true
     },
     mati: {
-        label: "Mig Matí",
-        start: "10:30",
-        greenEnd: "11:30",
-        orangeEnd: "12:00",
-        redEnd: "12:30",
-        icon: "☕️",
+        label: "Activació",
+        start: "9:00",
+        greenEnd: "10:00",
+        orangeEnd: "10:30",
+        redEnd: "11:00",
+        icon: "🔥",
         isEssential: false
     },
     dinar: {
         label: "Dinar",
         start: "13:00",
-        greenEnd: "14:00",
+        greenEnd: "14:30",
         orangeEnd: "15:00",
-        redEnd: "16:00",
+        redEnd: "15:30",
         icon: "🍽",
         isEssential: true
-    },
-    berenar: {
-        label: "Berenar",
-        start: "17:00",
-        greenEnd: "17:30",
-        orangeEnd: "18:00",
-        redEnd: "18:30",
-        icon: "🍎",
-        isEssential: false
     },
     sopar: {
         label: "Sopar",
@@ -44,6 +35,15 @@ const HABIT_CONFIG = {
         icon: "🍲",
         isEssential: true
     },
+    berenar: {
+        label: "Baixar el ritme",// Slow down and prepare to sleep
+        start: "22:00",
+        greenEnd: "22:30",
+        orangeEnd: "23:00",
+        redEnd: "23:30",
+        icon: "😴",
+        isEssential: false
+    }
 };
 
 // CONFIGURATION
@@ -86,7 +86,7 @@ const SKIP_REASONS = {
 };
 
 const TEST_MODE_CONFIG = {
-    isVisible: true,      // Show the panel?
+    isVisible: false,      // Show the panel?
     defaultTimeOverride: true, // Enable Time Override by default?
     defaultDayOverride: true,  // Enable Day Mode Override by default?
     initialTime: "15:45"   // Default time selection. Options: "13:45", "14:45", or "15:45"

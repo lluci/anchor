@@ -783,6 +783,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             overlay.style.display = "block";
 
+            // Log to DB
+            logHabitToDB("DAY_GLOBAL", "skipped", "User marked day as unavailable");
+
         } else {
             mainContainer.classList.remove("app-disabled");
             btnSkipToday.style.display = "block";
