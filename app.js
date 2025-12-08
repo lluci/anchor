@@ -868,58 +868,16 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // 3. Render Batch Button
-        const btnRow = document.createElement("div");
-        btnRow.style.marginTop = "20px";
-        btnRow.style.textAlign = "center";
-        btnRow.innerHTML = `
-            <button id="btn-finish-day" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem;">${BUTTON_LABELS.finishDay}</button>
-        `;
-        container.appendChild(btnRow);
+        // 3. Render Batch Button (REMOVED)
+        // Individual actions are now immediate.
 
-        document.getElementById("btn-finish-day").addEventListener("click", () => {
-            // Gather data
-            const cards = container.querySelectorAll(".simple-card");
-            const summary = [];
-            cards.forEach(c => {
-                const id = c.dataset.habitId;
-                let state = c.dataset.state;
-
-                // If not marked done or skipped, and we are finishing the day, treat as Skipped?
-                // Or just don't log them? User said "Status should be Done or Skipped".
-                // If it's undefined, let's default to "skipped" (implied omit by finishing day)
-                if (!state) state = "skipped";
-
-                summary.push(`${id}: ${state}`);
-
-                // Lock UI?
-                c.classList.add("locked-final");
-                const btns = c.querySelectorAll("button");
-                btns.forEach(b => b.disabled = true);
-            });
-
-            console.log("Day Finished (Special Mode). Data:", summary.join(", "));
-            alert("Dia finalitzat! Dades desades: " + summary.length + " hàbits.");
-
-            // DB Log Batch
-            summary.forEach(item => {
-                const [hId, hState] = item.split(": ");
-                if (hState && hState !== "undefined" && hState !== "null") {
-                    logHabitToDB(hId, hState, "Special Mode Batch");
-                }
-            });
-
-            // Disable finish button
-            btnRow.querySelector("button").disabled = true;
-        });
-
-        // Initial update of simple cards (for locks)
-        updateSpecialFlowListeners();
+        // Initial update of simple cards (checks time locks)
+        updateSpecialLocks();
     }
 
     function renderSimpleCard(container, id, cfg, checkLock) {
         const card = document.createElement("div");
-        card.className = "simple-card"; // Need generic card style or specific? Reusing habit-card style mostly.
+        card.className = "simple-card";
         card.style.background = "#fff";
         card.style.borderRadius = "12px";
         card.style.padding = "16px";
@@ -946,9 +904,44 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         container.appendChild(card);
+
+        // --- ATTACH LISTENERS IMMEDIATELY ---
+        const btnDone = card.querySelector(".js-simple-done");
+        const btnOmit = card.querySelector(".js-simple-omit");
+
+        const lockCard = () => {
+            btnDone.disabled = true;
+            btnOmit.disabled = true;
+            card.style.opacity = "0.7";
+            // Maybe change text to "Enviat"?
+        };
+
+        const handleAction = (state) => {
+            const detail = state === "skipped" ? "Skipped in Special Mode" : "Done in Special Mode";
+
+            // UI Update
+            if (state === "done") {
+                btnDone.style.background = "#4cd964";
+                btnDone.style.color = "white";
+                btnDone.style.borderColor = "#4cd964";
+            } else {
+                btnOmit.style.background = "#8e8e93";
+                btnOmit.style.color = "white";
+                btnOmit.style.borderColor = "#8e8e93";
+            }
+
+            lockCard();
+
+            // DB Save
+            logHabitToDB(id, state, detail);
+        };
+
+        btnDone.addEventListener("click", () => handleAction("done"));
+        btnOmit.addEventListener("click", () => handleAction("skipped"));
     }
 
-    function updateSpecialFlowListeners() {
+    // Renamed from updateSpecialFlowListeners to be more specific
+    function updateSpecialLocks() {
         const now = getEffectiveTime();
 
         document.querySelectorAll(".simple-card").forEach(card => {
@@ -963,7 +956,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const btnOmit = card.querySelector(".js-simple-omit");
             const lockMsg = card.querySelector(".lock-status");
 
-            if (card.classList.contains("locked-final")) return; // Don't touch if finished day
+            // If already acted upon (disabled by user action), don't mess with it
+            // We can check if buttons are disabled but opacity is 0.7 (user action) vs 0.5 (time lock)
+            // Or better, set a dataset flag
+            if (card.dataset.userLocked === "true") return;
 
             if (!isUnlocked) {
                 btnDone.disabled = true;
@@ -971,81 +967,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.style.opacity = "0.5";
                 lockMsg.style.display = "block";
             } else {
+                // Unlock
                 btnDone.disabled = false;
                 btnOmit.disabled = false;
                 card.style.opacity = "1";
                 lockMsg.style.display = "none";
             }
-        });
-
-        // SAFETY CATCH: Disable "Finish Day" button until ALL tasks are unlocked
-        const btnFinish = document.getElementById("btn-finish-day");
-        if (btnFinish) {
-            let allActive = true;
-            document.querySelectorAll(".simple-card").forEach(c => {
-                const id = c.dataset.habitId;
-                const cfg = HABIT_CONFIG[id];
-                const [startH, startM] = cfg.start.split(":").map(Number);
-                const isUnlocked = (now.getHours() > startH || (now.getHours() === startH && now.getMinutes() >= startM));
-                if (!isUnlocked) allActive = false;
-            });
-
-            if (allActive) {
-                btnFinish.disabled = false;
-                btnFinish.innerHTML = BUTTON_LABELS.finishDay;
-            } else {
-                btnFinish.disabled = true;
-                btnFinish.innerHTML = `${BUTTON_LABELS.finishDay} (Espera)`;
-            }
-        }
-        // State Styles
-        // We need to re-attach listeners? No, simpler to just set them once or inline?
-        // Since we clear container on render, one-time attachment is fine.
-        // But wait, updateSpecialFlowListeners is called in global loop?
-        // No, listeners should be attached once. State updates in loop.
-        // We need a separate function for attaching listeners.
-    }
-
-    // Attach listeners to simple cards (call once after render)
-    function attachSpecialListeners() {
-        document.querySelectorAll(".simple-card").forEach(card => {
-            const btnDone = card.querySelector(".js-simple-done");
-            const btnOmit = card.querySelector(".js-simple-omit");
-
-            const updateVisuals = () => {
-                const state = card.dataset.state;
-
-                // Reset defaults
-                btnDone.style.background = "#f0f0f5";
-                btnDone.style.color = "#111";
-                btnDone.style.borderColor = "#dcdce0";
-
-                btnOmit.style.background = "#f0f0f5";
-                btnOmit.style.color = "#111";
-                btnOmit.style.borderColor = "#dcdce0";
-
-                if (state === 'done') {
-                    btnDone.style.background = "#4cd964";
-                    btnDone.style.color = "white";
-                    btnDone.style.borderColor = "#4cd964";
-                } else if (state === 'skipped') {
-                    btnOmit.style.background = "#8e8e93";
-                    btnOmit.style.color = "white";
-                    btnOmit.style.borderColor = "#8e8e93";
-                }
-            };
-
-            const toggleState = (newState) => {
-                if (card.dataset.state === newState) {
-                    delete card.dataset.state; // Toggle off
-                } else {
-                    card.dataset.state = newState;
-                }
-                updateVisuals();
-            };
-
-            btnDone.addEventListener("click", () => toggleState('done'));
-            btnOmit.addEventListener("click", () => toggleState('skipped'));
         });
     }
 
@@ -1075,7 +1002,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else {
             // Special Mode Updates (Time locks)
-            updateSpecialFlowListeners();
+            updateSpecialLocks();
         }
     };
 
