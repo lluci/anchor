@@ -30,4 +30,9 @@ Intention: Make Anchor proactive, not just reflective, while keeping the interac
 	•	Trend of energy in the header
 	•	Extended analytics in settings popup
 	•	Long-term insights
+    •	Add dark mode
+    •	Add mobile support
 
+## Pending fixes
+    •	Special mode Omit: add "Why?" field, like regular omits.
+    •	Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
