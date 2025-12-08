@@ -29,9 +29,9 @@ const HABIT_CONFIG = {
     sopar: {
         label: "Sopar",
         start: "19:00",
-        greenEnd: "20:00",
+        greenEnd: "20:30",
         orangeEnd: "21:00",
-        redEnd: "22:00",
+        redEnd: "21:30",
         icon: "🍲",
         isEssential: true
     },
@@ -87,7 +87,7 @@ const SKIP_REASONS = {
 
 const TEST_MODE_CONFIG = {
     isVisible: false,      // Show the panel?
-    defaultTimeOverride: true, // Enable Time Override by default?
-    defaultDayOverride: true,  // Enable Day Mode Override by default?
+    defaultTimeOverride: false, // Enable Time Override by default?
+    defaultDayOverride: false,  // Enable Day Mode Override by default?
     initialTime: "15:15"   // Default time selection. Options: "13:45", "14:45", or "15:45"
 };
