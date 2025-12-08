@@ -88,13 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Test Mode Logic
-    const testToggle = document.getElementById("test-mode-toggle");
+    const testTimeToggle = document.getElementById("test-mode-time-toggle");
+    const testDayToggle = document.getElementById("test-mode-day-toggle");
     const testRadios = document.getElementsByName("test-time");
 
     function getEffectiveTime() {
         const now = new Date();
         // If toggle is checked, force time to selected radio value
-        if (testToggle && testToggle.checked) {
+        if (testTimeToggle && testTimeToggle.checked) {
             const selected = document.querySelector('input[name="test-time"]:checked');
             if (selected) {
                 const [h, m] = selected.value.split(":").map(Number);
@@ -107,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getEffectiveDayMode() {
-        if (testToggle && testToggle.checked) {
+        if (testDayToggle && testDayToggle.checked) {
             const selected = document.querySelector('input[name="test-mode-type"]:checked');
             return selected ? selected.value : 'normal';
         }
@@ -117,9 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return WEEKLY_CONFIG[todayKey] || 'normal';
     }
 
-    if (testToggle) {
-
-        // ... (existing config loading logic)
+    if (testTimeToggle || testDayToggle) {
+        // Note: Assuming if one exists, test panel is active generally
 
         const closeBtn = document.getElementById("dev-tools-close");
         if (closeBtn) {
@@ -129,15 +129,18 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        testToggle.addEventListener("change", () => {
-            // Immediate update when toggled
-            globalUpdate();
-        });
+        if (testTimeToggle) {
+            testTimeToggle.addEventListener("change", () => globalUpdate());
+        }
+
+        if (testDayToggle) {
+            testDayToggle.addEventListener("change", () => globalUpdate());
+        }
 
         if (testRadios) {
             testRadios.forEach(radio => {
                 radio.addEventListener("change", () => {
-                    if (testToggle.checked) globalUpdate();
+                    if (testTimeToggle && testTimeToggle.checked) globalUpdate();
                 });
             });
         }
@@ -147,8 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (modeRadios) {
             modeRadios.forEach(radio => {
                 radio.addEventListener("change", () => {
-                    console.log("Test Mode Type Changed:", radio.value);
-                    if (testToggle.checked) globalUpdate();
+                    if (testDayToggle && testDayToggle.checked) globalUpdate();
                 });
             });
         }
