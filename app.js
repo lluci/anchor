@@ -635,6 +635,147 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
+    // --- NOTIFICATION ENGINE ---
+
+    class NotificationManager {
+        constructor() {
+            this.permission = Notification.permission;
+            this.btnEnable = document.getElementById("btn-enable-notifications");
+            this.statusEl = document.getElementById("notification-status");
+            this.errorEl = document.getElementById("notification-error");
+            this.state = {}; // Track last notification sent for each habit to avoid spam
+            // Structure: { habitId: { lastPhase: 'green' } }
+
+            this.initUI();
+            this.startHeartbeat();
+        }
+
+        initUI() {
+            if (this.btnEnable) {
+                this.updateUI();
+                this.btnEnable.addEventListener("click", () => this.requestPermission());
+            }
+        }
+
+        updateUI() {
+            if (!this.btnEnable) return;
+            if (this.permission === "granted") {
+                this.btnEnable.style.display = "none";
+                this.statusEl.style.display = "block";
+                this.errorEl.style.display = "none";
+            } else if (this.permission === "denied") {
+                this.btnEnable.style.display = "none";
+                this.statusEl.style.display = "none";
+                this.errorEl.style.display = "block";
+            } else {
+                this.btnEnable.style.display = "block";
+                this.statusEl.style.display = "none";
+                this.errorEl.style.display = "none";
+            }
+        }
+
+        async requestPermission() {
+            try {
+                const result = await Notification.requestPermission();
+                this.permission = result;
+                this.updateUI();
+                if (result === "granted") {
+                    new Notification("Anchor", { body: "Notificacions activades correctament!" });
+                }
+            } catch (err) {
+                console.error("Notification permission error:", err);
+            }
+        }
+
+        startHeartbeat() {
+            // Check every minute (approx)
+            setInterval(() => this.check(), 60000);
+            // Also check immediately on load/change
+            this.check();
+        }
+
+        check() {
+            if (this.permission !== "granted") return;
+            if (typeof HABIT_CONFIG === 'undefined') return;
+
+            const now = getEffectiveTime();
+            const currentM = now.getHours() * 60 + now.getMinutes();
+
+            Object.entries(HABIT_CONFIG).forEach(([id, cfg]) => {
+                this.checkHabit(id, cfg, currentM);
+            });
+        }
+
+        checkHabit(id, cfg, currentM) {
+            // Don't notify if already done/skipped
+            const card = document.querySelector(`.habit-card[data-habit-id="${id}"]`);
+            if (card) {
+                const state = card.dataset.state;
+                if (state === "done" || state === "skipped") return;
+            }
+
+            const startM = toMinutes(cfg.start);
+            const greenEndM = toMinutes(cfg.greenEnd);
+            const orangeEndM = toMinutes(cfg.orangeEnd);
+
+            // PREPARATION: 15 min before
+            const prepTime = startM - 15;
+
+            let phaseToSend = null;
+            let title = "";
+            let body = "";
+
+            if (currentM === prepTime) {
+                phaseToSend = "preparation";
+                title = `Prepara't per ${cfg.label}`;
+                body = `Només falten 15 minuts. Comença a tancar carpetes/tasques.`;
+            } else if (currentM === startM) {
+                phaseToSend = "start";
+                title = `És hora de ${cfg.label}`;
+                body = `Com estàs? Moment de fer el canvi.`;
+            } else if (currentM === greenEndM) {
+                phaseToSend = "late";
+                title = `${cfg.label} - Franja Taronja`;
+                body = `Vas una mica tard, però encara hi ets a temps.`;
+            } else if (currentM === orangeEndM) {
+                phaseToSend = "urgent";
+                title = `${cfg.label} - Franja Vermella`;
+                body = `És tard. Prioritza el teu benestar i energia.`;
+            }
+
+            // Only send if we haven't sent THIS phase for THIS habit yet today (or recently)
+            // But 'currentM' checks precise minute, so checking once per minute is fine unless we reload.
+            // But we need to avoid re-sending if user reloads page at that exact minute.
+            // We use simple state tracking.
+
+            if (phaseToSend) {
+                // Check if already sent
+                if (!this.state[id]) this.state[id] = {};
+                if (this.state[id].lastPhase === phaseToSend && this.state[id].lastDay === now.getDate()) return; // Already sent today
+
+                this.send(title, body, cfg.icon);
+                this.state[id] = { lastPhase: phaseToSend, lastDay: new Date().getDate() };
+            }
+        }
+
+        send(title, body, icon) {
+            // In a real PWA context we might use ServiceWorker registration.showNotification
+            // For simple usage:
+            const n = new Notification(title, {
+                body: body,
+                icon: icon // Might fail if emoji, but worth a try or use app icon
+            });
+            n.onclick = () => {
+                window.focus();
+                n.close();
+            };
+        }
+    }
+
+    // Initialize
+    const notificationManager = new NotificationManager();
+
+
     // --- SETTINGS PANEL LOGIC ---
 
     const btnSettings = document.getElementById("btn-settings");
@@ -645,6 +786,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSettings.addEventListener("click", () => {
             settingsOverlay.style.display = "flex";
             renderWeeklyGrid();
+            notificationManager.updateUI(); // Ensure correct state
         });
 
         btnCloseSettings.addEventListener("click", () => {
@@ -1047,6 +1189,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // Special Mode Updates (Time locks)
             updateSpecialLocks();
+        }
+
+        // Check Notifications
+        if (typeof notificationManager !== 'undefined') {
+            notificationManager.check();
         }
     };
 

@@ -26,7 +26,8 @@ Add the temporal layer on top of the existing logic:
 Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
 
 ## Future Directions (Not Milestones Yet)
-	•	Trend / Energy indicator
-	•	Extended analytics
-	•	Optional long-term insights
+    •	Daily levels of burnout and management of the energy
+	•	Trend of energy in the header
+	•	Extended analytics in settings popup
+	•	Long-term insights
 
