@@ -211,6 +211,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
         }
+
+        // Notification Test Buttons
+        const btnNotifyPrep = document.getElementById("btn-test-notify-prep");
+        const btnNotifyStart = document.getElementById("btn-test-notify-start");
+        const btnNotifyLate = document.getElementById("btn-test-notify-late");
+        const btnNotifyUrgent = document.getElementById("btn-test-notify-urgent");
+
+        if (btnNotifyPrep) btnNotifyPrep.addEventListener("click", () => {
+            if (typeof notificationManager !== 'undefined') {
+                notificationManager.send("Prepara't per [Hàbit]", "Només falten 15 minuts. Comença a tancar carpetes/tasques.", "😃");
+            }
+        });
+
+        if (btnNotifyStart) btnNotifyStart.addEventListener("click", () => {
+            if (typeof notificationManager !== 'undefined') {
+                notificationManager.send("És hora de [Hàbit]", "Com estàs? Moment de fer el canvi.", "🔥");
+            }
+        });
+
+        if (btnNotifyLate) btnNotifyLate.addEventListener("click", () => {
+            if (typeof notificationManager !== 'undefined') {
+                notificationManager.send("[Hàbit] - Franja Taronja", "Vas una mica tard, però encara hi ets a temps.", "🍽");
+            }
+        });
+
+        if (btnNotifyUrgent) btnNotifyUrgent.addEventListener("click", () => {
+            if (typeof notificationManager !== 'undefined') {
+                notificationManager.send("[Hàbit] - Franja Vermella", "És tard. Prioritza el teu benestar i energia.", "😴");
+            }
+        });
     }
 
     // --- REPLACED HELPERS TO USE getEffectiveTime ---
