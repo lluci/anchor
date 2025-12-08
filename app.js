@@ -201,14 +201,17 @@ document.addEventListener("DOMContentLoaded", () => {
             // ... Normal Logic ...
 
             // --- DONE / OMIT BUTTONS ---
-            // Enabled ONLY if: (Pending) AND (Phase=Active)
-            // If Phase=Future -> Disabled
-            // If Phase=Expired -> Disabled (even if Edited, per user request)
+            // Done: Enabled ONLY if Phase=Active (Pending)
+            // Omit: Enabled if Phase=Active OR Phase=Future (Pending)
             if (state === "pending") {
                 if (phase === "active") {
                     if (btnFet) btnFet.disabled = false;
                     if (btnOmit) btnOmit.disabled = false;
+                } else if (phase === "future") {
+                    if (btnFet) btnFet.disabled = true; // Done still locked in future? Usually yes.
+                    if (btnOmit) btnOmit.disabled = false; // Omit unlocked in future per request
                 } else {
+                    // Expired
                     if (btnFet) btnFet.disabled = true;
                     if (btnOmit) btnOmit.disabled = true;
                 }

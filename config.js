@@ -56,12 +56,15 @@ const WINDOW_VARIANTS = {
 };
 
 const BUTTON_LABELS = {
-    done: "Fet",
-    edit: "Editar franja",
-    omit: "Ometre avui",
-    accept: "Desar",
+    accept: "Guardar",
     cancel: "Cancel·lar",
-    edited: "Editat",
+    done: "Fet",
+    edit: "Editar",
+    omit: "Ometre",
+    reset: "Restablir",
+    finishDay: "Finalitzar el dia",
+    essentialOnly: "Mode Essencial",
+    allTasks: "Mode Flexible",
     confirmSkip: "Confirmar",
     selectReason: "Selecciona motiu...",
     settingsData: "Configuració i Estadístiques",
