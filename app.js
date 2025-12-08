@@ -599,30 +599,35 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderWeeklyGrid() {
         const grid = document.getElementById("weekly-pact-grid");
         if (!grid) return;
-
         grid.innerHTML = "";
-        const days = getNext7Days();
 
-        const daysOfWeek = ["Dg", "Dl", "Dt", "Dc", "Dj", "Dv", "Ds"];
+        const days = ["Dg", "Dl", "Dt", "Dc", "Dj", "Dv", "Ds"]; // Catalan Days (Sun-Sat)
 
-        days.forEach(date => {
-            const dateKey = date.toISOString().split("T")[0];
-            const dayName = daysOfWeek[date.getDay()];
-            const dayNum = date.getDate();
+        for (let i = 1; i <= 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+
+            const dateKey = d.toISOString().split("T")[0];
+            const dayIndex = d.getDay(); // 0 = Sun, 6 = Sat
+            const dayName = days[dayIndex];
+            const dayNum = d.getDate();
             const label = `${dayName} ${dayNum}`;
+            const isWeekend = (dayIndex === 0 || dayIndex === 6);
 
             // Default to 'normal' if not set
             if (!WEEKLY_CONFIG[dateKey]) WEEKLY_CONFIG[dateKey] = 'normal';
             const currentType = WEEKLY_CONFIG[dateKey];
 
             const col = document.createElement("div");
-            col.className = "pact-col";
+            col.className = `pact-col ${isWeekend ? 'is-weekend' : ''}`;
 
             col.innerHTML = `
                 <div class="pact-header">${label}</div>
-                <button class="pact-btn ${currentType === 'normal' ? 'active' : ''}" data-date="${dateKey}" data-type="normal">Normal</button>
-                <button class="pact-btn ${currentType === 'essential' ? 'special-active' : ''}" data-date="${dateKey}" data-type="essential">Essencials</button>
-                <button class="pact-btn ${currentType === 'flexible' ? 'special-active' : ''}" data-date="${dateKey}" data-type="flexible">Totes</button>
+                <div class="pact-options">
+                    <button class="pact-btn ${currentType === 'normal' ? 'active' : ''}" data-date="${dateKey}" data-type="normal">Normal</button>
+                    <button class="pact-btn ${currentType === 'essential' ? 'special-active' : ''}" data-date="${dateKey}" data-type="essential">Essenc.</button>
+                    <button class="pact-btn ${currentType === 'flexible' ? 'special-active' : ''}" data-date="${dateKey}" data-type="flexible">Totes</button>
+                </div>
             `;
 
             // Add listeners
@@ -630,23 +635,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const btnEssential = col.querySelector('[data-type="essential"]');
             const btnFlexible = col.querySelector('[data-type="flexible"]');
 
-            btnNormal.addEventListener("click", () => {
-                WEEKLY_CONFIG[dateKey] = 'normal';
-                renderWeeklyGrid();
-            });
+            const refresh = () => renderWeeklyGrid();
 
-            btnEssential.addEventListener("click", () => {
-                WEEKLY_CONFIG[dateKey] = 'essential';
-                renderWeeklyGrid();
-            });
-
-            btnFlexible.addEventListener("click", () => {
-                WEEKLY_CONFIG[dateKey] = 'flexible';
-                renderWeeklyGrid();
-            });
+            btnNormal.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'normal'; refresh(); });
+            btnEssential.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'essential'; refresh(); });
+            btnFlexible.addEventListener("click", () => { WEEKLY_CONFIG[dateKey] = 'flexible'; refresh(); });
 
             grid.appendChild(col);
-        });
+        }
     }
 
     // --- SKIP TODAY LOGIC ---
