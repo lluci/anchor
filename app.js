@@ -85,15 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return h * 60 + m;
     }
 
-    // Global Loop
-    const globalUpdate = () => {
-        document.querySelectorAll(".habit-card").forEach(card => {
-            updateNowIndicator(card);
-            updateCardPhase(card);
-        });
-    };
 
-    setInterval(globalUpdate, 60000); // 1 minute
 
     // Test Mode Logic
     const testToggle = document.getElementById("test-mode-toggle");
@@ -703,11 +695,250 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Main Render Loop
-    Object.keys(HABIT_CONFIG).forEach(habitId => {
-        const config = HABIT_CONFIG[habitId];
-        const cardElement = renderHabitCard(habitId, config);
-        container.appendChild(cardElement);
-    });
+    // --- RENDER LOGIC ---
 
+    let lastRenderedMode = null;
+
+    function renderNormalFlow() {
+        // Clear container only if we are taking over from another mode
+        // But renderNormalFlow logic below appends... 
+        // We should clear it if switching.
+        const container = document.getElementById("habit-container");
+        if (!container) return;
+
+        container.innerHTML = ""; // Always clear to rebuild safe state
+
+        Object.keys(HABIT_CONFIG).forEach(habitId => {
+            const config = HABIT_CONFIG[habitId];
+            const cardElement = renderHabitCard(habitId, config);
+            container.appendChild(cardElement);
+        });
+
+        // After rendering, trigger an update to set initial states
+        document.querySelectorAll(".habit-card").forEach(card => {
+            updateNowIndicator(card);
+            updateCardPhase(card);
+        });
+    }
+
+    function renderSpecialFlow(mode) {
+        const container = document.getElementById("habit-container");
+        if (!container) return;
+
+        container.innerHTML = ""; // Clear existing
+
+        const now = getEffectiveTime();
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+
+        // 1. Filter Habits
+        const habits = Object.entries(HABIT_CONFIG).filter(([id, config]) => {
+            if (mode === 'essential') {
+                return config.isEssential === true;
+            }
+            return true; // flexible = all
+        });
+
+        if (habits.length === 0) {
+            container.innerHTML = "<div class='subtitle' style='text-align:center;'>No hi ha hàbits per avui.</div>";
+            return;
+        }
+
+        // 2. Render Simple Cards
+        habits.forEach(([id, config]) => {
+            renderSimpleCard(container, id, config, currentTime => {
+                // Time Lock Logic
+                // Parse start time "HH:MM"
+                const [startH, startM] = config.start.split(":").map(Number);
+
+                // Enable only if Now >= Start
+                if (currentTime.getHours() > startH || (currentTime.getHours() === startH && currentTime.getMinutes() >= startM)) {
+                    return true; // Unlocked
+                }
+                return false; // Locked
+            });
+        });
+
+        // 3. Render Batch Button
+        const btnRow = document.createElement("div");
+        btnRow.style.marginTop = "20px";
+        btnRow.style.textAlign = "center";
+        btnRow.innerHTML = `
+            <button id="btn-finish-day" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem;">${BUTTON_LABELS.finishDay}</button>
+        `;
+        container.appendChild(btnRow);
+
+        document.getElementById("btn-finish-day").addEventListener("click", () => {
+            // Gather data
+            const cards = container.querySelectorAll(".simple-card");
+            let summary = [];
+            cards.forEach(c => {
+                const id = c.dataset.habitId;
+                const state = c.dataset.state || "pending";
+                summary.push(`${id}: ${state}`);
+
+                // Lock UI?
+                c.classList.add("locked-final");
+                const btns = c.querySelectorAll("button");
+                btns.forEach(b => b.disabled = true);
+            });
+
+            console.log("Day Finished (Special Mode). Data:", summary.join(", "));
+            alert("Dia finalitzat! Dades desades: " + summary.length + " hàbits.");
+
+            // Disable finish button
+            btnRow.querySelector("button").disabled = true;
+        });
+
+        // Initial update of simple cards (for locks)
+        updateSpecialFlowListeners();
+    }
+
+    function renderSimpleCard(container, id, cfg, checkLock) {
+        const card = document.createElement("div");
+        card.className = "simple-card"; // Need generic card style or specific? Reusing habit-card style mostly.
+        card.style.background = "#fff";
+        card.style.borderRadius = "12px";
+        card.style.padding = "16px";
+        card.style.marginBottom = "12px";
+        card.style.boxShadow = "0 1px 3px rgba(0,0,0,0.08)";
+        card.style.display = "flex";
+        card.style.alignItems = "center";
+        card.style.justifyContent = "space-between";
+        card.dataset.habitId = id;
+
+        // Inner HTML
+        card.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="font-size:1.5rem;">${cfg.icon}</div>
+                <div>
+                    <div style="font-weight:bold; font-size: 1.1rem;">${cfg.label}</div>
+                    <div class="lock-status" style="font-size:0.8rem; color:#888; display:none;">🔒 ${cfg.start}</div>
+                </div>
+            </div>
+            <div class="simple-actions" style="display:flex; gap:8px;">
+                <button class="btn js-simple-done" style="background:#f0f0f5; border:1px solid #dcdce0;">${BUTTON_LABELS.done}</button>
+                <button class="btn js-simple-omit" style="background:#f0f0f5; border:1px solid #dcdce0;">${BUTTON_LABELS.omit}</button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    }
+
+    function updateSpecialFlowListeners() {
+        const now = getEffectiveTime();
+
+        document.querySelectorAll(".simple-card").forEach(card => {
+            const id = card.dataset.habitId;
+            const cfg = HABIT_CONFIG[id];
+
+            // Check Lock
+            const [startH, startM] = cfg.start.split(":").map(Number);
+            const isUnlocked = (now.getHours() > startH || (now.getHours() === startH && now.getMinutes() >= startM));
+
+            const btnDone = card.querySelector(".js-simple-done");
+            const btnOmit = card.querySelector(".js-simple-omit");
+            const lockMsg = card.querySelector(".lock-status");
+
+            if (card.classList.contains("locked-final")) return; // Don't touch if finished day
+
+            if (!isUnlocked) {
+                btnDone.disabled = true;
+                btnOmit.disabled = true;
+                card.style.opacity = "0.6";
+                lockMsg.style.display = "block";
+            } else {
+                btnDone.disabled = false;
+                btnOmit.disabled = false;
+                card.style.opacity = "1";
+                lockMsg.style.display = "none";
+            }
+
+            // State Styles
+            // We need to re-attach listeners? No, simpler to just set them once or inline?
+            // Since we clear container on render, one-time attachment is fine.
+            // But wait, updateSpecialFlowListeners is called in global loop?
+            // No, listeners should be attached once. State updates in loop.
+            // We need a separate function for attaching listeners.
+        });
+    }
+
+    // Attach listeners to simple cards (call once after render)
+    function attachSpecialListeners() {
+        document.querySelectorAll(".simple-card").forEach(card => {
+            const btnDone = card.querySelector(".js-simple-done");
+            const btnOmit = card.querySelector(".js-simple-omit");
+
+            const updateVisuals = () => {
+                const state = card.dataset.state;
+
+                // Reset defaults
+                btnDone.style.background = "#f0f0f5";
+                btnDone.style.color = "#111";
+                btnDone.style.borderColor = "#dcdce0";
+
+                btnOmit.style.background = "#f0f0f5";
+                btnOmit.style.color = "#111";
+                btnOmit.style.borderColor = "#dcdce0";
+
+                if (state === 'done') {
+                    btnDone.style.background = "#4cd964";
+                    btnDone.style.color = "white";
+                    btnDone.style.borderColor = "#4cd964";
+                } else if (state === 'skipped') {
+                    btnOmit.style.background = "#8e8e93";
+                    btnOmit.style.color = "white";
+                    btnOmit.style.borderColor = "#8e8e93";
+                }
+            };
+
+            const toggleState = (newState) => {
+                if (card.dataset.state === newState) {
+                    delete card.dataset.state; // Toggle off
+                } else {
+                    card.dataset.state = newState;
+                }
+                updateVisuals();
+            };
+
+            btnDone.addEventListener("click", () => toggleState('done'));
+            btnOmit.addEventListener("click", () => toggleState('skipped'));
+        });
+    }
+
+
+    // Global Loop Refactor
+    const globalUpdate = () => {
+        const currentMode = getEffectiveDayMode();
+
+        // Mode Switch Logic
+        if (currentMode !== lastRenderedMode) {
+            console.log(`Switching mode: ${lastRenderedMode} -> ${currentMode}`);
+            lastRenderedMode = currentMode;
+
+            if (currentMode === 'normal') {
+                renderNormalFlow();
+            } else {
+                renderSpecialFlow(currentMode);
+                attachSpecialListeners();
+            }
+        }
+
+        // Live Updates
+        if (currentMode === 'normal') {
+            document.querySelectorAll(".habit-card").forEach(card => {
+                updateNowIndicator(card);
+                updateCardPhase(card);
+            });
+        } else {
+            // Special Mode Updates (Time locks)
+            updateSpecialFlowListeners();
+        }
+    };
+
+    setInterval(globalUpdate, 60000); // 1 minute
+
+    // Initial Render
+    // Don't call render loop directly, call globalUpdate to trigger initial render logic
+    setTimeout(globalUpdate, 0);
 });

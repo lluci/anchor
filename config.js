@@ -8,6 +8,15 @@ const HABIT_CONFIG = {
         icon: "😴",
         isEssential: true
     },
+    mati: {
+        label: "Mig Matí",
+        start: "10:30",
+        greenEnd: "11:30",
+        orangeEnd: "12:00",
+        redEnd: "12:30",
+        icon: "☕️",
+        isEssential: false
+    },
     dinar: {
         label: "Dinar",
         start: "13:00",
@@ -16,6 +25,15 @@ const HABIT_CONFIG = {
         redEnd: "16:00",
         icon: "🍽",
         isEssential: true
+    },
+    berenar: {
+        label: "Berenar",
+        start: "17:00",
+        greenEnd: "17:30",
+        orangeEnd: "18:00",
+        redEnd: "18:30",
+        icon: "🍎",
+        isEssential: false
     },
     sopar: {
         label: "Sopar",
@@ -49,7 +67,9 @@ const BUTTON_LABELS = {
     normalDay: "Dia Normal",
     specialDay: "Dia Especial",
     essentialOnly: "Indispensables",
-    allTasks: "Totes (Especial)"
+    allTasks: "Totes (Especial)",
+    reset: "Restablir",
+    finishDay: "Finalitzar el dia"
 };
 
 const SKIP_REASONS = {
