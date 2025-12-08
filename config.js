@@ -86,7 +86,7 @@ const SKIP_REASONS = {
 };
 
 const TEST_MODE_CONFIG = {
-    isVisible: true,      // Show the panel?
+    isVisible: false,      // Show the panel?
     defaultTimeOverride: true, // Enable Time Override by default?
     defaultDayOverride: true,  // Enable Day Mode Override by default?
     initialTime: "15:15"   // Default time selection. Options: "13:45", "14:45", or "15:45"
