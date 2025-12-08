@@ -864,10 +864,16 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("btn-finish-day").addEventListener("click", () => {
             // Gather data
             const cards = container.querySelectorAll(".simple-card");
-            let summary = [];
+            const summary = [];
             cards.forEach(c => {
                 const id = c.dataset.habitId;
-                const state = c.dataset.state || "pending";
+                let state = c.dataset.state;
+
+                // If not marked done or skipped, and we are finishing the day, treat as Skipped?
+                // Or just don't log them? User said "Status should be Done or Skipped".
+                // If it's undefined, let's default to "skipped" (implied omit by finishing day)
+                if (!state) state = "skipped";
+
                 summary.push(`${id}: ${state}`);
 
                 // Lock UI?
@@ -882,7 +888,9 @@ document.addEventListener("DOMContentLoaded", () => {
             // DB Log Batch
             summary.forEach(item => {
                 const [hId, hState] = item.split(": ");
-                logHabitToDB(hId, hState, "Special Mode Batch");
+                if (hState && hState !== "undefined" && hState !== "null") {
+                    logHabitToDB(hId, hState, "Special Mode Batch");
+                }
             });
 
             // Disable finish button
