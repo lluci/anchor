@@ -86,7 +86,9 @@ const SKIP_REASONS = {
 };
 
 const TEST_MODE_CONFIG = {
-    enabled: true, // Set to true to start in Test Mode
-    isVisible: true, // Set to false to hide the panel entirely
-    initialTime: "15:45" // "13:45", "14:45", or "15:45"
+    isVisible: true,      // Show the panel?
+    defaultTimeOverride: true, // Enable Time Override by default?
+    defaultDayOverride: true,  // Enable Day Mode Override by default?
+    initialTime: "15:45"   // Default time selection. Options: "13:45", "14:45", or "15:45"
+
 };

@@ -137,6 +137,22 @@ document.addEventListener("DOMContentLoaded", () => {
             testDayToggle.addEventListener("change", () => globalUpdate());
         }
 
+        // APPLY CONFIG
+        if (typeof TEST_MODE_CONFIG !== 'undefined') {
+            const devTools = document.getElementById("dev-tools");
+            if (devTools) {
+                devTools.style.display = TEST_MODE_CONFIG.isVisible ? "block" : "none";
+            }
+            if (testTimeToggle) testTimeToggle.checked = TEST_MODE_CONFIG.defaultTimeOverride;
+            if (testDayToggle) testDayToggle.checked = TEST_MODE_CONFIG.defaultDayOverride;
+
+            // Set Initial Time Radio
+            if (TEST_MODE_CONFIG.initialTime) {
+                const radio = document.querySelector(`input[name="test-time"][value="${TEST_MODE_CONFIG.initialTime}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
+
         if (testRadios) {
             testRadios.forEach(radio => {
                 radio.addEventListener("change", () => {
