@@ -952,7 +952,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!isUnlocked) {
                 btnDone.disabled = true;
                 btnOmit.disabled = true;
-                card.style.opacity = "0.6";
+                card.style.opacity = "0.5";
                 lockMsg.style.display = "block";
             } else {
                 btnDone.disabled = false;
@@ -960,14 +960,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.style.opacity = "1";
                 lockMsg.style.display = "none";
             }
-
-            // State Styles
-            // We need to re-attach listeners? No, simpler to just set them once or inline?
-            // Since we clear container on render, one-time attachment is fine.
-            // But wait, updateSpecialFlowListeners is called in global loop?
-            // No, listeners should be attached once. State updates in loop.
-            // We need a separate function for attaching listeners.
         });
+
+        // SAFETY CATCH: Disable "Finish Day" button until ALL tasks are unlocked
+        const btnFinish = document.getElementById("btn-finish-day");
+        if (btnFinish) {
+            let allActive = true;
+            document.querySelectorAll(".simple-card").forEach(c => {
+                const id = c.dataset.habitId;
+                const cfg = HABIT_CONFIG[id];
+                const [startH, startM] = cfg.start.split(":").map(Number);
+                const isUnlocked = (now.getHours() > startH || (now.getHours() === startH && now.getMinutes() >= startM));
+                if (!isUnlocked) allActive = false;
+            });
+
+            if (allActive) {
+                btnFinish.disabled = false;
+                btnFinish.innerHTML = BUTTON_LABELS.finishDay;
+            } else {
+                btnFinish.disabled = true;
+                btnFinish.innerHTML = `${BUTTON_LABELS.finishDay} (Espera)`;
+            }
+        }
+        // State Styles
+        // We need to re-attach listeners? No, simpler to just set them once or inline?
+        // Since we clear container on render, one-time attachment is fine.
+        // But wait, updateSpecialFlowListeners is called in global loop?
+        // No, listeners should be attached once. State updates in loop.
+        // We need a separate function for attaching listeners.
     }
 
     // Attach listeners to simple cards (call once after render)
