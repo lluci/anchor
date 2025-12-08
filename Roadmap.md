@@ -65,7 +65,10 @@ Fix the pending issues and tech debt.
 
 ## Pending fixes & tech debt
 
-    • Special mode Omit: add "Why?" field, like regular omits.
-    • Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
-    • Add a way to identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar)
-    • Add a questionary below the card when the card got old before the user set Done. The questions are: I didn't do it because... (the answers will come at the right time).
+    • Improvement: Special mode Omit: add "Why?" field, like regular omits.
+    • Fix: Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
+    • Improvement: Add a way to identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar)
+    • Improvement: Add a questionary below the card when the card got old before the user set Done. The questions are: I didn't do it because... (the answers will come at the right time).
+    • ToDo: Refactor legacy date handling logic for consistency.
+
+
