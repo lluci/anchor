@@ -72,6 +72,7 @@ The issue with the current timeline is that is slow to configure. The user has t
 
     Related tasks:
     - #Improv #UX Make the timeline semaphor reactive to the habit state, and remove the badge.
+    - #Improv #UI Substitute the current lime red line with a band long as the execution time of the habit.
 
 ===========
 
