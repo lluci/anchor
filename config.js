@@ -2,6 +2,7 @@ const HABIT_CONFIG = {
     dormir: {
         label: "Llevar-se",// Wake up time
         start: "07:00",
+        whiteEnd: "07:30",
         greenEnd: "08:00",
         orangeEnd: "08:30",
         redEnd: "09:00",
@@ -11,6 +12,7 @@ const HABIT_CONFIG = {
     mati: {
         label: "Activació",
         start: "9:00",
+        whiteEnd: "9:30",
         greenEnd: "10:00",
         orangeEnd: "10:30",
         redEnd: "11:00",
