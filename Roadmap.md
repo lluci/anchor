@@ -26,16 +26,14 @@ Add the notification layer on top of the existing logic:
 
 Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
 
-### Milestone v1.2 — Levels of energy management
+### Milestone v1.2 — Levels of burnout management
 
-Add the energy management layer on top of the existing logic:
+Add the burnout management layer on top of the existing logic:
  • Daily levels of burnout definition
-    • Daily advice of health care reacting on the level of burnout
- • Trend of energy in the header
+• Daily advice of health care reacting on the level of burnout
+ • Trend of burnout in the header
  • Extended analytics in settings popup
  • Long-term insights
-
-Intention: Make Anchor a manager of the energy, not just a tracker of it.
 
 ### Milestone v1.2.1 — Self care tasks
 
@@ -67,19 +65,28 @@ Fix the pending issues and tech debt.
 
 ### Fixes & Improvements
 
-Fixes & Improvements are told by the user
+Fixes & Improvements are told by the user. These should be small tasks, not new features. Organized by areas.
 
- • [Improvement] Special mode Omit: add "Why?" field, like regular omits.
-    • [Fix] Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
-    • [Improvement] Add a way to identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar)
-    • [Improvement] Add a questionary below the card when the card got old before the user set Done. The questions are: I didn't do it because... (the answers will come at the right time).
-    • [Improvement] Card Edit button let switch between Green and Organge (discarding the red option).
-    • [Improvement] Remove the label "- Fet" that displays when a card is set as Done.
-    • [Improvement] Substitute the "Editat" badge with a symbol.
+#### Habit Panel (aka. cards) (Normal mode)
 
-### Tech debt
+    • #Impro #UI Identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar).
+    • #Impro #UX Change the way the habit got old before the user set Done. Insert questions (I skipped it because...).
+    • #Fix #UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first card).
+    • #Impro #UI Card Edit button let switch between Green and Organge (discarding the red option).
+    • #Impro #UI Remove the label "· Fet" that displays when a card is set as Done.
+    • #Impro #UI Substitute the "Editat" badge with a symbol 📝.
+    • #Impro #UI Add the range "Prep" to the card timeline.
+    • #Impro #UI Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
+
+#### Header
+
+#### Special mode
+
+ • #Impro #UI Omit feature: add a "Why?" dropdown, like Normal mode omits.
+
+#### Tech debt
 
 Tech debt is told by the developer
 
-    • [ToDo] Refactor legacy date handling logic for consistency.
+    • #ToDo Refactor legacy date handling logic for consistency.
     
