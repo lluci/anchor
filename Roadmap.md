@@ -1,6 +1,8 @@
 # Anchor — Roadmap
 
-## Milestone v1.0 — Core App (Complete, No Notifications)
+## MILESTONES
+
+### Milestone v1.0 — Core App (Complete, No Notifications)
 
 Includes everything defined in the initial design:
  • Daily habit panel
@@ -15,7 +17,7 @@ Includes everything defined in the initial design:
 
 Intention: Deliver the complete Anchor interaction model, fully functional and persistent, without time-based automation.
 
-## Milestone v1.1 — Notification Engine
+### Milestone v1.1 — Notification Engine
 
 Add the notification layer on top of the existing logic:
  • Window-based notifications
@@ -24,7 +26,7 @@ Add the notification layer on top of the existing logic:
 
 Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
 
-## Milestone v1.2 — Levels of energy management
+### Milestone v1.2 — Levels of energy management
 
 Add the energy management layer on top of the existing logic:
  • Daily levels of burnout definition
@@ -35,7 +37,7 @@ Add the energy management layer on top of the existing logic:
 
 Intention: Make Anchor a manager of the energy, not just a tracker of it.
 
-## Milestone v1.2.1 — Self care tasks
+### Milestone v1.2.1 — Self care tasks
 
 A new feature that inserts self care tasks in the habit panel. The user will have the opportunity to activate a single self care task that will be inserted in the habit panel to be executed every day along the week. Those self-care tasks are burnout solvers and are pre defined in the app.
 
@@ -44,7 +46,7 @@ A new feature that inserts self care tasks in the habit panel. The user will hav
 
 Intention: Amplify the user's self-care routine in case of need.
 
-## Milestone v1.3 — Cronobiology layer
+### Milestone v1.3 — Cronobiology layer
 
 Add the cronobiology layer on top of the existing logic:
     •   Add a display to show the current phase of the circadian rhythm
@@ -52,23 +54,32 @@ Add the cronobiology layer on top of the existing logic:
 
 Intention: Add an extra layer of awareness to the app.
 
-## Milestone v1.4 — Tech debt and small fixes
+### Milestone v1.4 — Tech debt and small fixes
 
 Fix the pending issues and tech debt.
 
--------
+## FUTURE TASKS
 
-## Future Directions (Not Milestones Yet)
+### Ideas for Milestones
 
     • Add dark mode
     • Add mobile support
 
-## Pending fixes & tech debt
+### Fixes & Improvements
 
-    • Improvement: Special mode Omit: add "Why?" field, like regular omits.
-    • Fix: Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
-    • Improvement: Add a way to identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar)
-    • Improvement: Add a questionary below the card when the card got old before the user set Done. The questions are: I didn't do it because... (the answers will come at the right time).
-    • ToDo: Refactor legacy date handling logic for consistency.
+Fixes & Improvements are told by the user
 
+ • [Improvement] Special mode Omit: add "Why?" field, like regular omits.
+    • [Fix] Normal mode: Editar button don't change color of the badge when clicked. (the issue happen only on the first card).
+    • [Improvement] Add a way to identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar)
+    • [Improvement] Add a questionary below the card when the card got old before the user set Done. The questions are: I didn't do it because... (the answers will come at the right time).
+    • [Improvement] Card Edit button let switch between Green and Organge (discarding the red option).
+    • [Improvement] Remove the label "- Fet" that displays when a card is set as Done.
+    • [Improvement] Substitute the "Editat" badge with a symbol.
 
+### Tech debt
+
+Tech debt is told by the developer
+
+    • [ToDo] Refactor legacy date handling logic for consistency.
+    
