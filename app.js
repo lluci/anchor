@@ -1029,21 +1029,33 @@ document.addEventListener("DOMContentLoaded", () => {
         // But renderNormalFlow logic below appends... 
         // We should clear it if switching.
         const container = document.getElementById("habit-container");
-        if (!container) return;
+        if (!container) {
+            console.error('[ANCHOR] ERROR: habit-container not found!');
+            return;
+        }
 
+        console.log('[ANCHOR] renderNormalFlow: Clearing container');
         container.innerHTML = ""; // Always clear to rebuild safe state
+
+        const habitCount = Object.keys(HABIT_CONFIG).length;
+        console.log('[ANCHOR] renderNormalFlow: Rendering', habitCount, 'habits');
 
         Object.keys(HABIT_CONFIG).forEach(habitId => {
             const config = HABIT_CONFIG[habitId];
+            console.log('[ANCHOR] Rendering habit:', habitId, config.label);
             const cardElement = renderHabitCard(habitId, config);
             container.appendChild(cardElement);
         });
+
+        console.log('[ANCHOR] renderNormalFlow: All cards appended to container');
 
         // After rendering, trigger an update to set initial states
         document.querySelectorAll(".habit-card").forEach(card => {
             updateNowIndicator(card);
             updateCardPhase(card);
         });
+
+        console.log('[ANCHOR] renderNormalFlow: Complete');
     }
 
     function renderSpecialFlow(mode) {
@@ -1195,16 +1207,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Global Loop Refactor
     const globalUpdate = () => {
+        console.log('[ANCHOR] globalUpdate called');
         const currentMode = getEffectiveDayMode();
+        console.log('[ANCHOR] Current mode:', currentMode, '| Last rendered mode:', lastRenderedMode);
 
         // Mode Switch Logic
         if (currentMode !== lastRenderedMode) {
-            console.log(`Switching mode: ${lastRenderedMode} -> ${currentMode}`);
+            console.log(`[ANCHOR] Switching mode: ${lastRenderedMode} -> ${currentMode}`);
             lastRenderedMode = currentMode;
 
             if (currentMode === 'normal') {
+                console.log('[ANCHOR] Rendering Normal Flow...');
                 renderNormalFlow();
             } else {
+                console.log('[ANCHOR] Rendering Special Flow:', currentMode);
                 renderSpecialFlow(currentMode);
                 // Event listeners are already attached in renderSimpleCard()
             }
@@ -1212,12 +1228,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Live Updates
         if (currentMode === 'normal') {
-            document.querySelectorAll(".habit-card").forEach(card => {
+            const cards = document.querySelectorAll(".habit-card");
+            console.log('[ANCHOR] Updating', cards.length, 'normal mode cards');
+            cards.forEach(card => {
                 updateNowIndicator(card);
                 updateCardPhase(card);
             });
         } else {
             // Special Mode Updates (Time locks)
+            console.log('[ANCHOR] Updating special mode locks');
             updateSpecialLocks();
         }
 
@@ -1231,5 +1250,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial Render
     // Don't call render loop directly, call globalUpdate to trigger initial render logic
+    console.log('[ANCHOR] App initialization starting...');
+    console.log('[ANCHOR] HABIT_CONFIG:', typeof HABIT_CONFIG !== 'undefined' ? Object.keys(HABIT_CONFIG) : 'UNDEFINED');
+    console.log('[ANCHOR] Scheduling initial globalUpdate...');
     setTimeout(globalUpdate, 0);
 });

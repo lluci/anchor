@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .log {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 3px solid #007aff;
+        }
+
+        .error {
+            border-left-color: #ff3b30;
+            background: #fff5f5;
+        }
+
+        .success {
+            border-left-color: #4cd964;
+            background: #f5fff5;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Anchor Debug Test</h1>
+    <div id="output"></div>
+
+    <script src="config.js"></script>
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            output.appendChild(div);
+            console.log(msg);
+        }
+
+        // Test 1: Check if config loaded
+        log('Testing config.js loading...', 'log');
+        if (typeof HABIT_CONFIG !== 'undefined') {
+            log('✓ HABIT_CONFIG loaded successfully', 'success');
+            log(`  Found ${Object.keys(HABIT_CONFIG).length} habits`, 'success');
+        } else {
+            log('✗ HABIT_CONFIG not found!', 'error');
+        }
+
+        // Test 2: Check WINDOW_VARIANTS
+        if (typeof WINDOW_VARIANTS !== 'undefined') {
+            log('✓ WINDOW_VARIANTS loaded', 'success');
+        } else {
+            log('✗ WINDOW_VARIANTS not found!', 'error');
+        }
+
+        // Test 3: Check BUTTON_LABELS
+        if (typeof BUTTON_LABELS !== 'undefined') {
+            log('✓ BUTTON_LABELS loaded', 'success');
+        } else {
+            log('✗ BUTTON_LABELS not found!', 'error');
+        }
+
+        // Test 4: Test DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            log('✓ DOMContentLoaded fired', 'success');
+        });
+
+        // Test 5: Check for errors
+        window.addEventListener('error', (e) => {
+            log(`✗ JavaScript Error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+        });
+
+        log('Debug test initialized. Check console for additional info.', 'log');
+    </script>
+</body>
+
+</html>
