@@ -9,7 +9,7 @@ const HABIT_CONFIG = {
         icon: "😃",
         isEssential: true
     },
-    mati: {
+    activacioMatinal: {
         label: "Activació",
         start: "9:00",
         whiteEnd: "9:30",
