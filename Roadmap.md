@@ -93,7 +93,7 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
     - #Impro #UI Add the range "Prep" to the card timeline.
     - #Impro #UI Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
 
-    ##### DONE
+    TASKS DONE
     - #fix #UI The normal mode tasks are not visible on iPhone Safari. - DONE
 
 #### #SpecialMode tasks
