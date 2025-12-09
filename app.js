@@ -220,25 +220,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (btnNotifyPrep) btnNotifyPrep.addEventListener("click", () => {
             if (typeof notificationManager !== 'undefined') {
-                notificationManager.send("Prepara't per [Hàbit]", "Només falten 15 minuts. Comença a tancar carpetes/tasques.", "😃");
+                notificationManager.send("⬜ Prepara't per [Hàbit]", "Només falten 15 minuts. Comença a tancar carpetes/tasques.", "😃");
             }
         });
 
         if (btnNotifyStart) btnNotifyStart.addEventListener("click", () => {
             if (typeof notificationManager !== 'undefined') {
-                notificationManager.send("És hora de [Hàbit]", "Com estàs? Moment de fer el canvi.", "🔥");
+                notificationManager.send("🟩 És hora de [Hàbit]", "Com estàs? Moment de fer el canvi.", "🔥");
             }
         });
 
         if (btnNotifyLate) btnNotifyLate.addEventListener("click", () => {
             if (typeof notificationManager !== 'undefined') {
-                notificationManager.send("[Hàbit] - Franja Taronja", "Vas una mica tard, però encara hi ets a temps.", "🍽");
+                notificationManager.send("🟧 [Hàbit]", "Vas una mica tard, però encara hi ets a temps.", "🍽");
             }
         });
 
         if (btnNotifyUrgent) btnNotifyUrgent.addEventListener("click", () => {
             if (typeof notificationManager !== 'undefined') {
-                notificationManager.send("[Hàbit] - Franja Vermella", "És tard. Prioritza el teu benestar i energia.", "😴");
+                notificationManager.send("🟥 [Hàbit]", "És tard. Prioritza el teu benestar i energia.", "😴");
             }
         });
     }
@@ -757,19 +757,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (currentM === prepTime) {
                 phaseToSend = "preparation";
-                title = `Prepara't per ${cfg.label}`;
+                title = `⬜ Prepara't per ${cfg.label}`;
                 body = `Només falten 15 minuts. Comença a tancar carpetes/tasques.`;
             } else if (currentM === startM) {
                 phaseToSend = "start";
-                title = `És hora de ${cfg.label}`;
+                title = `🟩 És hora de ${cfg.label}`;
                 body = `Com estàs? Moment de fer el canvi.`;
             } else if (currentM === greenEndM) {
                 phaseToSend = "late";
-                title = `${cfg.label} - Franja Taronja`;
+                title = `🟧 ${cfg.label}`;
                 body = `Vas una mica tard, però encara hi ets a temps.`;
             } else if (currentM === orangeEndM) {
                 phaseToSend = "urgent";
-                title = `${cfg.label} - Franja Vermella`;
+                title = `🟥 ${cfg.label}`;
                 body = `És tard. Prioritza el teu benestar i energia.`;
             }
 
