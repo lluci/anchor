@@ -37,7 +37,7 @@ const HABIT_CONFIG = {
         icon: "🍲",
         isEssential: true
     },
-    berenar: {
+    baixarRitme: {
         label: "Baixar el ritme",// Slow down and prepare to sleep
         start: "22:00",
         greenEnd: "22:30",
