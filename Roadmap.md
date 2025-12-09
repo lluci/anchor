@@ -1,4 +1,4 @@
-# Anchor — Roadmap
+# Anchor Roadmap
 
 ## MILESTONES
 
@@ -62,23 +62,22 @@ Fix the pending issues and tech debt.
 
     • Add dark mode
     • Add mobile support
+    - #NormalMode #Improv #UX Change the way the habit got old before the user set Done. Insert questions (I skipped it because...).
+    - #NormalMode #Improv #UX Make the timeline semaphor reactive to the habit state, and remove the badge.
 
 ### Fixes & Improvements
 
 Fixes & Improvements are told by the user. These should be small tasks, not new features. Organized by areas.
 
-#### Habit Panel (aka. cards) (Normal mode)
+#### Normal mode Habit Panel (aka. cards)
 
-    • #Impro #UI Identify the cards that are indispensable in the Normal mode (a flag in the corner or something similar).
-    • #Impro #UX Change the way the habit got old before the user set Done. Insert questions (I skipped it because...).
+    • #Impro #UI Add a flag to identify the cards that are indispensable in the Normal mode.
     • #Fix #UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first card).
-    • #Impro #UI Card Edit button let switch between Green and Organge (discarding the red option).
-    • #Impro #UI Remove the label "· Fet" that displays when a card is set as Done.
+    • #Impro #UI Habit Edit button let switch between Green and Organge (discarding the red option).
+    • #Impro #UI Remove the label "· Fet" that displays when a habit is set as Done.
     • #Impro #UI Substitute the "Editat" badge with a symbol 📝.
     • #Impro #UI Add the range "Prep" to the card timeline.
     • #Impro #UI Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
-
-#### Header
 
 #### Special mode
 
