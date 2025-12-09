@@ -82,6 +82,7 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 
 #### #NormalMode Habit Panel (aka. cards)
 
+    - #fix #UI The normal mode tasks are not visible on iPhone Safari.
     - #Impro #UI Add a flag to identify the cards that are indispensable in the Normal mode.
     - #Fix #UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first card).
     - #Impro #UI Habit Edit button let switch between Green and Organge (discarding the red option).
