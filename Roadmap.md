@@ -26,7 +26,7 @@ Add the notification layer on top of the existing logic:
 
 Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
 
-### Milestone v1.2 — Levels of burnout management - PLANNED
+### Milestone v1.2 — Levels of burnout management - #PLANNED
 
 Add the burnout management layer on top of the existing logic:
     - Daily levels of burnout definition
@@ -35,7 +35,7 @@ Add the burnout management layer on top of the existing logic:
     - Extended analytics in settings popup
     - Long-term insights
 
-### Milestone v1.2.1 — Self care tasks - PLANNED
+### Milestone v1.2.1 — Self care tasks - #PLANNED
 
 A new feature that inserts self care tasks in the habit panel. The user will have the opportunity to activate a single self care task that will be inserted in the habit panel to be executed every day along the week. Those self-care tasks are burnout solvers and are pre defined in the app.
 
@@ -44,7 +44,7 @@ A new feature that inserts self care tasks in the habit panel. The user will hav
 
 Intention: Amplify the user's self-care routine in case of need.
 
-### Milestone v1.3 — Cronobiology layer - DESIGN PENDING
+### Milestone v1.3 — Cronobiology layer - #DESIGN_PENDING
 
 Add the cronobiology layer on top of the existing logic:
     - Add a display to show the current phase of the circadian rhythm
@@ -52,7 +52,7 @@ Add the cronobiology layer on top of the existing logic:
 
 Intention: Add an extra layer of awareness to the app.
 
-### Milestone v1.4 — Tech debt and small fixes - DESIGN PENDING
+### Milestone v1.4 — Tech debt and small fixes - #DESIGN_PENDING
 
 Fix the pending issues and tech debt.
 
