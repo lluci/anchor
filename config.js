@@ -30,10 +30,10 @@ const HABIT_CONFIG = {
     },
     sopar: {
         label: "Sopar",
-        start: "19:00",
-        greenEnd: "20:30",
-        orangeEnd: "21:00",
-        redEnd: "21:30",
+        start: "20:00",
+        greenEnd: "21:30",
+        orangeEnd: "22:00",
+        redEnd: "22:30",
         icon: "🍲",
         isEssential: true
     },
