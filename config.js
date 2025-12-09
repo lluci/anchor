@@ -59,6 +59,7 @@ const BUTTON_LABELS = {
     accept: "Guardar",
     cancel: "Cancel·lar",
     done: "Fet",
+    edited: "Editat",
     edit: "Editar",
     omit: "Ometre",
     reset: "Restablir",
