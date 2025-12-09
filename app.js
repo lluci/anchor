@@ -1206,7 +1206,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderNormalFlow();
             } else {
                 renderSpecialFlow(currentMode);
-                attachSpecialListeners();
+                // Event listeners are already attached in renderSimpleCard()
             }
         }
 
