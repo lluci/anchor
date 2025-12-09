@@ -85,7 +85,6 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 
     - #fix #UX The status of the habit should sync with the database when page reloads.
     - #fix #UX The notifications of the habit should stop once the user set the habit as Done.
-    - #fix #UI The normal mode tasks are not visible on iPhone Safari.
     - #Impro #UI Add a flag to identify the cards that are indispensable in the Normal mode.
     - #Fix #UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first card).
     - #Impro #UI Habit Edit button let switch between Green and Organge (discarding the red option).
@@ -93,6 +92,9 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
     - #Impro #UI Substitute the "Editat" badge with a symbol 📝.
     - #Impro #UI Add the range "Prep" to the card timeline.
     - #Impro #UI Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
+
+    ##### DONE
+    - #fix #UI The normal mode tasks are not visible on iPhone Safari. - DONE
 
 #### #SpecialMode tasks
 
@@ -103,4 +105,6 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 List of tasks defined by the developer. Devs should define if it is a Milestone or a small task.
 
     - #ToDo Refactor legacy date handling logic for consistency.
-    
+    - #feature #iOS Implement in-app visual/audio alerts for habit reminders (works when app is open).
+    - #feature #iOS Convert to Progressive Web App (PWA) with Service Workers for background notifications.
+    - #feature #iOS Integrate Apple Push Notification service (APNs) for native-like notifications.
