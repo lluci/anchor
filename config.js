@@ -52,7 +52,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbynU-Vm_-ubA9hVBZQoN_JU
 const WINDOW_VARIANTS = {
     green: { label: "A temps", statusText: "A temps", badgeClass: "badge-green" },
     orange: { label: "Tard", statusText: "Tard", badgeClass: "badge-orange" },
-    red: { label: "Rescat", statusText: "Rescat", badgeClass: "badge-red" },
+    red: { label: "Urgent", statusText: "Urgent", badgeClass: "badge-red" },
 };
 
 const BUTTON_LABELS = {
