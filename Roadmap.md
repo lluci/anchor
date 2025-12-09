@@ -82,6 +82,7 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 
 #### #NormalMode Habit Panel (aka. cards)
 
+    - #fix #UX The status of the habit should sync with the database when page reloads.
     - #fix #UX The notifications of the habit should stop once the user set the habit as Done.
     - #fix #UI The normal mode tasks are not visible on iPhone Safari.
     - #Impro #UI Add a flag to identify the cards that are indispensable in the Normal mode.
