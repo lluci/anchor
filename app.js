@@ -669,7 +669,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     class NotificationManager {
         constructor() {
-            this.permission = Notification.permission;
+            // Check if Notification API is available (not supported on iOS Safari)
+            this.isSupported = typeof Notification !== 'undefined';
+
+            if (!this.isSupported) {
+                console.warn('[ANCHOR] Notification API not supported on this device (iOS/iPadOS Safari)');
+                this.permission = 'unsupported';
+            } else {
+                this.permission = Notification.permission;
+            }
+
             this.btnEnable = document.getElementById("btn-enable-notifications");
             this.statusEl = document.getElementById("notification-status");
             this.errorEl = document.getElementById("notification-error");
@@ -689,6 +698,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateUI() {
             if (!this.btnEnable) return;
+
+            // If not supported, hide notification UI entirely
+            if (!this.isSupported) {
+                this.btnEnable.style.display = "none";
+                this.statusEl.style.display = "none";
+                this.errorEl.style.display = "none";
+                return;
+            }
+
             if (this.permission === "granted") {
                 this.btnEnable.style.display = "none";
                 this.statusEl.style.display = "block";
@@ -705,6 +723,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         async requestPermission() {
+            if (!this.isSupported) {
+                console.warn('[ANCHOR] Cannot request permission - Notification API not supported');
+                return;
+            }
+
             try {
                 const result = await Notification.requestPermission();
                 this.permission = result;
@@ -725,6 +748,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         check() {
+            if (!this.isSupported) return; // Skip if not supported
             if (this.permission !== "granted") return;
             if (typeof HABIT_CONFIG === 'undefined') return;
 
@@ -789,6 +813,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         send(title, body, icon) {
+            if (!this.isSupported) {
+                console.log('[ANCHOR] Notification skipped (not supported):', title);
+                return;
+            }
+
             // In a real PWA context we might use ServiceWorker registration.showNotification
             // For simple usage:
             const n = new Notification(title, {
