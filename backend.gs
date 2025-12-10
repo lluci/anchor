@@ -50,6 +50,9 @@ function handleRequest(e) {
       logHabit(ss, data);
       result.status = "success";
     }
+    else if (action === "getTodayState") {
+      result.todayState = getTodayState(ss, data.date);
+    }
     else {
       // Default: just return pact for easy loading
       result.pact = getPact(ss);
@@ -122,6 +125,48 @@ function logHabit(ss, payload) {
     payload.detail || ""
   ]);
 }
+
+function getTodayState(ss, dateStr) {
+  const sheet = getOrCreateSheet(ss, "Logs");
+  const data = sheet.getDataRange().getValues();
+  
+  // Columns: Timestamp | Date | HabitID | State | Detail
+  // Find all logs for the given date and get the most recent state for each habit
+  
+  const habitStates = {};
+  
+  for (let i = data.length - 1; i >= 1; i--) { // Start from bottom (most recent)
+    const [timestamp, logDate, habitId, state, detail] = data[i];
+    
+    // Normalize date
+    let logDateStr = logDate;
+    if (typeof logDate === 'object') {
+      logDateStr = logDate.toISOString().split("T")[0];
+    }
+    
+    // If this log is for the requested date and we haven't seen this habit yet
+    if (logDateStr === dateStr && !habitStates[habitId]) {
+      habitStates[habitId] = {
+        state: state,
+        detail: detail || "",
+        window: extractWindow(detail) // Extract window from detail if available
+      };
+    }
+  }
+  
+  return habitStates;
+}
+
+// Helper to extract window info from detail string
+function extractWindow(detail) {
+  if (!detail) return null;
+  // Detail might be like "green" or "orange" or "red" or other text
+  if (detail === "green" || detail === "orange" || detail === "red") {
+    return detail;
+  }
+  return null;
+}
+
 
 function getOrCreateSheet(ss, name) {
   let sheet = ss.getSheetByName(name);

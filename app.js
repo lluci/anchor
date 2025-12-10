@@ -928,6 +928,76 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // 4. Load Today's State
+    async function loadTodayState() {
+        if (!API_URL || API_URL.includes("YOUR_")) {
+            console.log("DB: No API URL configured. Skipping state load.");
+            return {};
+        }
+
+        const date = getEffectiveTime().toISOString().split("T")[0];
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "getTodayState",
+                    date
+                })
+            });
+            const data = await response.json();
+            if (data.todayState) {
+                console.log("DB: Loaded Today's State", data.todayState);
+                return data.todayState;
+            }
+            return {};
+        } catch (e) {
+            console.error("DB: Load State Error", e);
+            return {};
+        }
+    }
+
+    // 5. Restore Habit State to UI
+    function restoreHabitState(habitId, stateData) {
+        const card = document.querySelector(`.habit-card[data-habit-id="${habitId}"]`);
+        if (!card) {
+            console.warn(`DB: Card not found for habit ${habitId}`);
+            return;
+        }
+
+        const { state, detail, window } = stateData;
+
+        // Restore state
+        card.dataset.state = state;
+        card.dataset.locked = "true"; // Lock the card since it's already been acted upon
+
+        // Restore window if available (for edited habits)
+        if (window) {
+            card.dataset.window = window;
+        }
+
+        // Restore skip reason if it was skipped
+        if (state === "skipped" && detail) {
+            card.dataset.skipReason = detail;
+        }
+
+        // Check if it was edited (detail contains "Edited:")
+        if (detail && detail.startsWith("Edited:")) {
+            card.dataset.edited = "true";
+            const editedWindow = detail.replace("Edited: ", "");
+            if (editedWindow) {
+                card.dataset.window = editedWindow;
+            }
+        }
+
+        // Update the UI to reflect the restored state
+        updateCardUI(card);
+
+        console.log(`DB: Restored state for ${habitId}:`, state, detail);
+    }
+
+
     // Start App
     loadConfig();
 
@@ -1084,8 +1154,21 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCardPhase(card);
         });
 
+        // Load and restore today's state from database
+        loadTodayState().then(todayState => {
+            if (Object.keys(todayState).length > 0) {
+                console.log('[ANCHOR] Restoring states for', Object.keys(todayState).length, 'habits');
+                Object.entries(todayState).forEach(([habitId, stateData]) => {
+                    restoreHabitState(habitId, stateData);
+                });
+            } else {
+                console.log('[ANCHOR] No saved states to restore for today');
+            }
+        });
+
         console.log('[ANCHOR] renderNormalFlow: Complete');
     }
+
 
     function renderSpecialFlow(mode) {
         const container = document.getElementById("habit-container");
@@ -1125,12 +1208,58 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+
         // 3. Render Batch Button (REMOVED)
         // Individual actions are now immediate.
 
         // Initial update of simple cards (checks time locks)
         updateSpecialLocks();
+
+        // Load and restore today's state from database
+        loadTodayState().then(todayState => {
+            if (Object.keys(todayState).length > 0) {
+                console.log('[ANCHOR] Restoring states for', Object.keys(todayState).length, 'habits (Special Mode)');
+                Object.entries(todayState).forEach(([habitId, stateData]) => {
+                    restoreSimpleCardState(habitId, stateData);
+                });
+            } else {
+                console.log('[ANCHOR] No saved states to restore for today (Special Mode)');
+            }
+        });
     }
+
+    // Helper to restore state for simple cards in Special Mode
+    function restoreSimpleCardState(habitId, stateData) {
+        const card = document.querySelector(`.simple-card[data-habit-id="${habitId}"]`);
+        if (!card) {
+            console.warn(`DB: Simple card not found for habit ${habitId}`);
+            return;
+        }
+
+        const { state } = stateData;
+        const btnDone = card.querySelector(".js-simple-done");
+        const btnOmit = card.querySelector(".js-simple-omit");
+
+        // Restore visual state
+        if (state === "done") {
+            btnDone.style.background = "#4cd964";
+            btnDone.style.color = "white";
+            btnDone.style.borderColor = "#4cd964";
+        } else if (state === "skipped") {
+            btnOmit.style.background = "#8e8e93";
+            btnOmit.style.color = "white";
+            btnOmit.style.borderColor = "#8e8e93";
+        }
+
+        // Lock the card
+        btnDone.disabled = true;
+        btnOmit.disabled = true;
+        card.style.opacity = "0.7";
+        card.dataset.userLocked = "true";
+
+        console.log(`DB: Restored simple card state for ${habitId}:`, state);
+    }
+
 
     function renderSimpleCard(container, id, cfg, checkLock) {
         const card = document.createElement("div");

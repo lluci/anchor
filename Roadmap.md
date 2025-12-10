@@ -79,7 +79,6 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 
 #### #NormalMode Habit Panel (aka. cards)
 
-    - #fix #UX The web should reload the database & update the UI with the data stored, in order to avoid user mistakes.
     - #fix #UX The notifications of the habit should stop once the user set the habit ends by any of the mechanisms designed.
     - #Impro #UI Add a flag to identify the cards that are indispensable in the Normal mode.
     - #Fix #UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first habit card).
@@ -91,6 +90,7 @@ Fixes & Improvements are defined by the user. These should be small tasks, not n
 
     TASKS DONE
     - #fix #UI The normal mode tasks are not visible on iPhone Safari. - DONE
+    - #fix #UX The web should reload the database & update the UI with the data stored, in order to avoid user mistakes. - DONE
 
 #### #SpecialMode tasks
 
