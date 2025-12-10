@@ -85,6 +85,40 @@ document.addEventListener("DOMContentLoaded", () => {
         return h * 60 + m;
     }
 
+    // Helper to calculate all time endpoints from simplified config
+    // Supports both new format (prep, greenDuration, margins) and old format (greenEnd, orangeEnd, redEnd)
+    function calculateTimeWindows(cfg) {
+        // Check if using old format (has greenEnd, orangeEnd, redEnd)
+        if (cfg.greenEnd && cfg.orangeEnd && cfg.redEnd) {
+            // Old format - use existing values
+            const startM = toMinutes(cfg.start);
+            const prepTime = cfg.whiteEnd ? toMinutes(cfg.whiteEnd) : startM - 15;
+
+            return {
+                prepTime: prepTime,
+                start: startM,
+                greenEnd: toMinutes(cfg.greenEnd),
+                orangeEnd: toMinutes(cfg.orangeEnd),
+                redEnd: toMinutes(cfg.redEnd)
+            };
+        }
+
+        // New format - calculate from durations
+        const startM = toMinutes(cfg.start);
+        const prep = cfg.prep !== undefined ? cfg.prep : 15; // Default 15 min
+        const greenDuration = cfg.greenDuration || 60; // Default 60 min
+        const margins = cfg.margins || 30; // Default 30 min
+
+        return {
+            prepTime: startM - prep,
+            start: startM,
+            greenEnd: startM + greenDuration,
+            orangeEnd: startM + greenDuration + margins,
+            redEnd: startM + greenDuration + margins + margins
+        };
+    }
+
+
 
 
     // Test Mode Logic
@@ -253,8 +287,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = getEffectiveTime();
         const currentM = now.getHours() * 60 + now.getMinutes();
 
-        const startM = toMinutes(cfg.start);
-        const redEndM = toMinutes(cfg.redEnd);
+        const windows = calculateTimeWindows(cfg);
+        const startM = windows.start;
+        const redEndM = windows.redEnd;
+
 
         // 1. Determine Phase
         let phase = "future";
@@ -347,8 +383,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const cfg = HABIT_CONFIG[id];
         if (!cfg) return;
 
-        const startM = toMinutes(cfg.start);
-        const redEndM = toMinutes(cfg.redEnd);
+        const windows = calculateTimeWindows(cfg);
+        const startM = windows.start;
+        const redEndM = windows.redEnd;
 
         const now = getEffectiveTime(); // CHANGED
         const currentM = now.getHours() * 60 + now.getMinutes();
@@ -372,8 +409,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = getEffectiveTime(); // CHANGED
         const currentM = now.getHours() * 60 + now.getMinutes();
 
-        const greenEndM = toMinutes(cfg.greenEnd);
-        const orangeEndM = toMinutes(cfg.orangeEnd);
+        const windows = calculateTimeWindows(cfg);
+        const greenEndM = windows.greenEnd;
+        const orangeEndM = windows.orangeEnd;
 
         if (currentM < greenEndM) return "green";
         if (currentM < orangeEndM) return "orange";
@@ -438,10 +476,11 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         // --- Timeline Logic ---
-        const startM = toMinutes(cfg.start);
-        const greenEndM = toMinutes(cfg.greenEnd);
-        const orangeEndM = toMinutes(cfg.orangeEnd);
-        const redEndM = toMinutes(cfg.redEnd);
+        const windows = calculateTimeWindows(cfg);
+        const startM = windows.start;
+        const greenEndM = windows.greenEnd;
+        const orangeEndM = windows.orangeEnd;
+        const redEndM = windows.redEnd;
 
         const minTime = startM;
         const maxTime = redEndM;
@@ -454,6 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const greenPct = (greenLen / total) * 100;
         const orangePct = (orangeLen / total) * 100;
         const redPct = (redLen / total) * 100;
+
 
         const segGreen = card.querySelector(".seg-green");
         const segOrange = card.querySelector(".seg-orange");
@@ -768,12 +808,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (state === "done" || state === "skipped") return;
             }
 
-            const startM = toMinutes(cfg.start);
-            const greenEndM = toMinutes(cfg.greenEnd);
-            const orangeEndM = toMinutes(cfg.orangeEnd);
+            const windows = calculateTimeWindows(cfg);
+            const startM = windows.start;
+            const greenEndM = windows.greenEnd;
+            const orangeEndM = windows.orangeEnd;
+            const prepTime = windows.prepTime;
 
-            // PREPARATION: 15 min before
-            const prepTime = startM - 15;
 
             let phaseToSend = null;
             let title = "";

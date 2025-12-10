@@ -1,48 +1,46 @@
 const HABIT_CONFIG = {
     dormir: {
-        label: "Llevar-se",// Wake up time
+        label: "Llevar-se",      // Wake up time
         start: "07:00",
-        whiteEnd: "07:30",
-        greenEnd: "08:00",
-        orangeEnd: "08:30",
-        redEnd: "09:00",
+        prep: 15,                 // Notification 15 min before (06:45)
+        greenDuration: 60,        // Green window: 07:00 - 08:00 (1 hour)
+        margins: 30,              // Orange: 08:00-08:30, Red: 08:30-09:00 (30 min each)
         icon: "😃",
         isEssential: true
     },
     activacioMatinal: {
         label: "Activació",
         start: "9:00",
-        whiteEnd: "9:30",
-        greenEnd: "10:00",
-        orangeEnd: "10:30",
-        redEnd: "11:00",
+        prep: 15,                 // Notification at 08:45
+        greenDuration: 60,        // Green window: 09:00 - 10:00 (1 hour)
+        margins: 30,              // Orange: 10:00-10:30, Red: 10:30-11:00 (30 min each)
         icon: "🔥",
         isEssential: false
     },
     dinar: {
         label: "Dinar",
         start: "13:00",
-        greenEnd: "14:30",
-        orangeEnd: "15:00",
-        redEnd: "15:30",
+        prep: 15,                 // Notification at 12:45
+        greenDuration: 90,        // Green window: 13:00 - 14:30 (1.5 hours)
+        margins: 30,              // Orange: 14:30-15:00, Red: 15:00-15:30 (30 min each)
         icon: "🍽",
         isEssential: true
     },
     sopar: {
         label: "Sopar",
         start: "20:00",
-        greenEnd: "21:30",
-        orangeEnd: "22:00",
-        redEnd: "22:30",
+        prep: 15,                 // Notification at 19:45
+        greenDuration: 90,        // Green window: 20:00 - 21:30 (1.5 hours)
+        margins: 30,              // Orange: 21:30-22:00, Red: 22:00-22:30 (30 min each)
         icon: "🍲",
         isEssential: true
     },
     baixarRitme: {
-        label: "Baixar el ritme",// Slow down and prepare to sleep
+        label: "Baixar el ritme", // Slow down and prepare to sleep
         start: "22:00",
-        greenEnd: "22:30",
-        orangeEnd: "23:00",
-        redEnd: "23:30",
+        prep: 15,                 // Notification at 21:45
+        greenDuration: 30,        // Green window: 22:00 - 22:30 (30 min)
+        margins: 30,              // Orange: 22:30-23:00, Red: 23:00-23:30 (30 min each)
         icon: "😴",
         isEssential: false
     }
