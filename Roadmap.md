@@ -26,7 +26,7 @@ Add the notification layer on top of the existing logic:
 
 Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
 
-#### Milestone 2 — #NormalMode Timeline - #PLANNED
+### Milestone 2 — #NormalMode Timeline Review - #PLANNED
 
 The issue with the current timeline is that it is slow to configure by the user side. The user has to give the exact time keys (start, whiteEnd, greenEnd, orangeEnd, redEnd). But in the new approach, the user will give the hour to start and the margins, letting the app calculate the ranges automatically.
 
