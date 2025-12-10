@@ -410,13 +410,79 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentM = now.getHours() * 60 + now.getMinutes();
 
         const windows = calculateTimeWindows(cfg);
+        const prepTimeM = windows.prepTime;
+        const startM = windows.start;
         const greenEndM = windows.greenEnd;
         const orangeEndM = windows.orangeEnd;
 
+        // If in prep time (before start), count as green
+        if (currentM >= prepTimeM && currentM < startM) return "green";
+
+        // Normal window detection
         if (currentM < greenEndM) return "green";
         if (currentM < orangeEndM) return "orange";
         return "red";
     }
+
+    // Update execution band position based on current time (Phase 2)
+    function updateExecutionBand(card) {
+        const id = card.dataset.habitId;
+        const cfg = HABIT_CONFIG[id];
+        if (!cfg) return;
+
+        const executionBand = card.querySelector(".execution-band");
+        if (!executionBand) {
+            console.warn(`[BAND] No execution band element found for ${id}`);
+            return;
+        }
+
+        const windows = calculateTimeWindows(cfg);
+        const prepTimeM = windows.prepTime;
+        const startM = windows.start;
+        const greenEndM = windows.greenEnd;
+        const redEndM = windows.redEnd;
+
+        const now = getEffectiveTime();
+        const currentM = now.getHours() * 60 + now.getMinutes();
+
+        const executionTime = cfg.executionTime || 30; // Default 30 min
+        const minTime = prepTimeM;
+        const total = redEndM - minTime;
+
+        // Hide band if we're past the green window
+        if (currentM >= greenEndM) {
+            executionBand.style.display = 'none';
+            return;
+        }
+
+        // Always start from current time (aligned with "now" indicator)
+        let bandStartM = currentM;
+        let bandEndM = currentM + executionTime;
+
+        // Cap the end at greenEnd (can't extend beyond green window)
+        bandEndM = Math.min(bandEndM, greenEndM);
+
+        // Calculate percentages
+        const bandStartPct = ((bandStartM - minTime) / total) * 100;
+        const bandLength = bandEndM - bandStartM;
+        const bandWidthPct = (bandLength / total) * 100;
+
+        // Apply styles
+        executionBand.style.display = 'block';
+        executionBand.style.setProperty('--band-start', `${bandStartPct}%`);
+        executionBand.style.setProperty('--band-width', `${bandWidthPct}%`);
+
+        // Subtle urgency indicator: slightly increase opacity when time is tight
+        const timeLeft = greenEndM - currentM;
+        if (timeLeft < executionTime) {
+            // Not enough time left - make band slightly more visible (but still subtle)
+            executionBand.style.opacity = '1';
+        } else {
+            // Comfortable amount of time - keep it subtle
+            executionBand.style.opacity = '0.8';
+        }
+    }
+
 
     function renderHabitCard(id, cfg) {
         const card = document.createElement("div");
@@ -436,12 +502,15 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="timeline">
                 <div class="time-ruler"></div>
                 <div class="timeline-bar">
+                    <div class="seg-white"></div>
                     <div class="seg-green"></div>
                     <div class="seg-orange"></div>
                     <div class="seg-red"></div>
                     <div class="now-indicator"></div>
                 </div>
+                <div class="execution-band"></div>
             </div>
+>
 
             <div class="status-line js-status-line"></div>
 
@@ -477,28 +546,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- Timeline Logic ---
         const windows = calculateTimeWindows(cfg);
+        const prepTimeM = windows.prepTime;
         const startM = windows.start;
         const greenEndM = windows.greenEnd;
         const orangeEndM = windows.orangeEnd;
         const redEndM = windows.redEnd;
 
-        const minTime = startM;
+        // Timeline now starts from prep time (before start)
+        const minTime = prepTimeM;
         const maxTime = redEndM;
         const total = maxTime - minTime;
 
-        const greenLen = greenEndM - startM;
-        const orangeLen = orangeEndM - greenEndM;
-        const redLen = redEndM - orangeEndM;
+        const whiteLen = startM - prepTimeM;      // Prep segment
+        const greenLen = greenEndM - startM;      // Green segment
+        const orangeLen = orangeEndM - greenEndM; // Orange segment
+        const redLen = redEndM - orangeEndM;      // Red segment
 
+        const whitePct = (whiteLen / total) * 100;
         const greenPct = (greenLen / total) * 100;
         const orangePct = (orangeLen / total) * 100;
         const redPct = (redLen / total) * 100;
 
 
+        const segWhite = card.querySelector(".seg-white");
         const segGreen = card.querySelector(".seg-green");
         const segOrange = card.querySelector(".seg-orange");
         const segRed = card.querySelector(".seg-red");
 
+        if (segWhite) segWhite.style.flex = `0 0 ${whitePct}%`;
         if (segGreen) segGreen.style.flex = `0 0 ${greenPct}%`;
         if (segOrange) segOrange.style.flex = `0 0 ${orangePct}%`;
         if (segRed) segRed.style.flex = `0 0 ${redPct}%`;
@@ -516,6 +591,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             ruler.innerHTML = rulerHtml;
         }
+
+
+        // Execution band position is now handled by updateExecutionBand() (Phase 2)
+        // No static initialization needed here
+
 
         // --- Interaction Logic ---
         const btnFet = card.querySelector(".js-btn-fet");
@@ -1192,7 +1272,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".habit-card").forEach(card => {
             updateNowIndicator(card);
             updateCardPhase(card);
+            updateExecutionBand(card);  // Set initial execution band position
         });
+
 
         // Load and restore today's state from database
         loadTodayState().then(todayState => {
@@ -1431,6 +1513,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cards.forEach(card => {
                 updateNowIndicator(card);
                 updateCardPhase(card);
+                updateExecutionBand(card);  // Update execution band position
             });
         } else {
             // Special Mode Updates (Time locks)
