@@ -1,5 +1,7 @@
 # Habit State Persistence Fix - Implementation Summary
 
+> **📖 For a complete understanding of all habit states and logic, see [HABIT_STATE_LOGIC.md](./HABIT_STATE_LOGIC.md)**
+
 ## Problem
 
 Habits were resetting to "Undone" state every time the page was reloaded, even though the actions (Done/Skip/Edit) were being logged to the database. This meant users would lose their progress if they refreshed the page.
