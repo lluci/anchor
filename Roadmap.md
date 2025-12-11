@@ -30,6 +30,10 @@ Intention: Make Anchor proactive, not just reflective, while keeping the interac
 
 After the first implementation, the user had the time to test the feature and appeared some issues and new ideas to improve the experience.
 
+### Add white range "Prep" - DONE
+
+The timeline include the time before the habit start. This range is white, meaning it is not a time window. If the user mark it as DONE during the white rante, it will consider it Done in Green.
+
 ### Better HABIT_CONFIG - DONE
 
 The issue with the current timeline is that it is slow to configure by the user side. The user has to give the exact time keys (start, whiteEnd, greenEnd, orangeEnd, redEnd). But in the new approach, the user will give the hour to start and the margins, letting the app calculate the ranges automatically.
@@ -86,41 +90,63 @@ Intention: Add an extra layer of awareness to the app.
 
 ## FUTURE TASKS
 
-### Ideas for Milestones
-
-- @Site @UI Add dark mode.
-- @Site @UI Add mobile support.
-- @NormalMode @Improv @UX Change the way the habit got old before the user set Done. Insert questions (I skipped it because...).
-
 ### Fixes & Improvements
 
 Fixes & Improvements are defined by the user. These should be small tasks, not new features. Organized by areas.
 
-### @NormalMode Habit Panel (aka. cards)
+### @Site
 
-- @NormalMode @FIx @UX The notifications of the habit should stop once the user set the habit ends by any of the mechanisms designed.
-- @NormalMode @Impro @UI Add a flag to identify the cards that are indispensable in the Normal mode.
-- @NormalMode @FIx @UI Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first habit card).
-- @NormalMode @Impro @UI Habit Edit button let switch between Green and Organge (discarding the red option).
-- @NormalMode @Impro @UI Remove the label "· Fet" that displays when a habit is set as Done.
-- @NormalMode @Impro @UI Substitute the "Editat" badge with a symbol 📝.
-- @NormalMode @Impro @UI Add the range "Prep" to the card timeline.
-- @NormalMode @Impro @UI Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
+- @site @ImproTask @UI - Add a flag to mark the indispensable cards.
+- @Site @ImproTask @UI - Add dark mode.
+- @Site @ImproTask @UI - Add mobile support.
+
+### @NormalMode
+
+Sorted by priority.
+
+- @NormalMode @FixTask @UX - The notifications of the habit should stop once the habit ends.
+- @NormalMode @FixTask @UI - Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first habit card).
+- @NormalMode @ImproTask @UI - Habit Edit button let switch between Green and Organge (discarding the red option).
+- @NormalMode @ImproTask @UI - Remove the label "· Fet" that displays when a habit is set as Done.
+- @NormalMode @ImproTask @UI - Substitute the Edited badge with an icon.
+- @NormalMode @ImproTask @UI - Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
+- @NormalMode @ImproMilestone @UX - Change the way the habit got old before the user set Done. The idea is giving the opportunity to say why the habit was skipped. These questions will help the system to understand the user's habits and provide better UX.
 
 #### @NormalMode Tasks done
 
-- @NormalMode @FIx @UI The normal mode tasks are not visible on iPhone Safari. - DONE
-- @NormalMode @FIx @UX The web should reload the database & update the UI with the data stored, in order to avoid user mistakes. - DONE
+- @NormalMode @FixTask @UI - The normal mode tasks are not visible on iPhone Safari. - DONE
+- @NormalMode @FixTask @UX - The web should reload the database & update the UI with the data stored, in order to avoid user mistakes. - DONE
 
-### @SpecialMode tasks
+### @SpecialMode
 
-- @SpecialMode @Impro @UI Omit feature: add a "Why?" dropdown, like Normal mode omits.
+- @SpecialMode @ImproTask @UI - Omit feature: add a "Why?" dropdown, like Normal mode omits.
 
 ## Tech Debt
 
-List of tasks defined by the AI. The user will move them to the appropriate milestone.
+List of tasks defined by the AI agent. The user will move them to the appropriate milestone.
 
-- @ToDo Refactor legacy date handling logic for consistency.
-- @Feature @iOS Implement in-app visual/audio alerts for habit reminders (works when app is open).
-- @Feature @iOS Convert to Progressive Web App (PWA) with Service Workers for background notifications.
-- @Feature @iOS Integrate Apple Push Notification service (APNs) for native-like notifications.
+- @Tech @RefactorMilestone - Refactor legacy date handling logic for consistency.
+- @Feature @iOS - Implement in-app visual/audio alerts for habit reminders (works when app is open).
+- @Feature @iOS - Convert to Progressive Web App (PWA) with Service Workers for background notifications.
+- @Feature @iOS - Integrate Apple Push Notification service (APNs) for native-like notifications.
+
+## TAGS (@) Guidelines
+
+### By area
+
+- @Site = Tasks related to the website.
+- @iOS = Tasks related to the iOS app.
+- @Android = Tasks related to the Android app.
+- @NormalMode = Tasks related to the Normal Mode.
+- @SpecialMode = Tasks related to the Special Mode.
+
+### By kind of task
+
+- @FixTask = Small tasks that fix a bug. They are not improvements, but something that isn't working as it is designed.
+- @ImproTask = They are improvements, but are not big enough to be a milestone.
+- @Milestone = Big tasks that improve the user experience. They are improvements, but are big enough to be a milestone.
+- @RefactorMilestone = Refactor legacy code for consistency. It includes Milestone because it is a big task and it can breack the app.
+
+### By whom
+
+- @Tech = Tasks defined by the AI. They are not UX nor UI but backend tasks that the user will appreciate the AI hands-on.
