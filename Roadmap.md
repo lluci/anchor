@@ -1,152 +1,239 @@
-# MILESTONES
+# ROADMAP (Refactored Labels + Restored Descriptions)
 
-## Milestone 1.0 — Core App (Complete, No Notifications) - DONE
+Below is the roadmap restored with **full original descriptions**, rewritten entirely in **English**, and formatted with the new deterministic labels.
 
-Includes everything defined in the initial design:
+---
 
-- Daily habit panel
-- Semaphor time windows + proportional timeline
-- Hour ruler
-- Done / Edit Window / Skip
-- Four skip-reason categories
-- Full persistence (daily state, edits, skips)
-- Daily Plan
-- Weekly Plan + Special Days
-- Mode switching (Normal / Special)
+# MILESTONE 1.0 — Core App (Complete, No Notifications) — DONE
 
-Intention: Deliver the complete Anchor interaction model, fully functional and persistent, without time-based automation.
+**Description**
+This milestone delivered the complete Anchor interaction model as initially designed: the daily panel, semaphor-based time windows, persistence, and both daily and weekly planning. The intention was to build a fully functional app without automation or notifications.
 
-## Milestone 1.1 — Notification Engine - DONE
+**Tasks**
 
-Add the notification layer on top of the existing logic:
+* @Core @Feature @User — Daily habit panel.
+* @Core @Feature @User — Semaphor time windows and proportional timeline.
+* @UI @Feature @User — Hour ruler.
+* @UI @UX @Feature @User — Done / Edit window / Skip.
+* @Core @Feature @User — Skip‑reason categories.
+* @Core @Feature @User — Full persistence (daily state, edits, skips).
+* @Core @UX @Feature @User — Daily Plan.
+* @Core @UX @Feature @User — Weekly Plan + Special Days.
+* @Core @UX @Feature @User — Mode switching (Normal / Special).
 
-- Window-based notifications
-- Tone and escalation rules
-- View of upcoming triggers
+---
 
-Intention: Make Anchor proactive, not just reflective, while keeping the interaction minimal and intentional.
+# MILESTONE 1.1 — Notification Engine — DONE
 
-## Milestone 2 — @NormalMode Timeline Review - #WIP
+**Description**
+Added the proactive notification layer on top of the existing logic. Notifications now respect time windows, escalation tones, and provide visibility of upcoming triggers. The intention was to make Anchor proactive while keeping the interaction intentional.
 
-After the first implementation, the user had the time to test the feature and appeared some issues and new ideas to improve the experience.
+**Tasks**
 
-### Add white range "Prep" - DONE
+* @Core @Feature @User — Window‑based notifications.
+* @Core @UX @User — Tone and escalation rules.
+* @UI @Feature @User — View showing upcoming triggers.
 
-The timeline include the time before the habit start. This range is white, meaning it is not a time window. If the user mark it as DONE during the white rante, it will consider it Done in Green.
+---
 
-### Better HABIT_CONFIG - DONE
+# MILESTONE 2 — Normal Mode Timeline Review — WIP
 
-The issue with the current timeline is that it is slow to configure by the user side. The user has to give the exact time keys (start, whiteEnd, greenEnd, orangeEnd, redEnd). But in the new approach, the user will give the hour to start and the margins, letting the app calculate the ranges automatically.
+**Description**
+After releasing the first implementation and testing it over time, several UX issues and new insights appeared. This milestone refines how the timeline behaves, how configuration works, and how users with time‑blindness understand execution time.
 
-### @Improv Now asset - WIP
+## Prep Range — DONE
 
-The user with time blindness need to see how long it takes to finish the habit. The Now asset should be a vertical line with a band long as the execution time of the habit. Add a new range of time equivalent to the execution time of the habit. For example, the user will spend 1h since start to the end, before mark it as Done. Then, the UI will help him to preview the time he needs.
+**Context**
+The timeline needed a pre‑habit range that does not count as a window. Marking Done inside this white range should still result in a Green Done state.
 
-- @Fix @UI: The execution time is a user helper. It should be more visible. Don't dimm it. Use stronger colors.
+**Task**
 
-### @Improv @UX Simplify Finished Timeline - PLANNED
+* @NormalMode @Feature @User — Add white preparatory range before habit start.
 
-The timeline colors aren't needed once the habit is finished. It could be simplified to a single badge, showing the achievement. Also, the row can be used to show more info, permitting the compacting of the habit card.
+## Improved Habit Configuration — DONE
 
-## Milestone 2.1 — @NormalMode Colapsed Habit
+**Context**
+The original timeline configuration required the user to manually provide all time boundaries (start, whiteEnd, greenEnd, orangeEnd, redEnd). This was slow and error‑prone. The new model lets the user provide only the start time and the margins, and the app calculates ranges automatically.
 
-Past and future habits should be compacted to save space, and help the user to pay all the attention in the current habit.
+**Task**
 
-### @Improv @UI/UX collapsable habits
+* @Core @Improve @UX @User — Create margin‑based habit configuration model.
 
-- Current habit: use expanded version with helpers (edit, skip, done).
-- Past habit: use colapsed version with final status & edit.
-- Future habit: use colapsed version with skip.
+## "Now" Asset — WIP
 
-## Milestone 3 — Levels of burnout management - @WAITING
+**Context**
+Users with time‑blindness need a sense of how long the habit takes from start to completion. The Now asset should display a vertical line with a band representing execution time. The UI must not dim this helper.
 
-Add the burnout management layer on top of the existing logic:
+**Tasks**
 
-- Daily levels of burnout definition
-- Daily advice of health care reacting on the level of burnout
-- Trend of burnout in the header
-- Extended analytics in settings popup
-- Long-term insights
+* @NormalMode @Feature @UX @User — Add a visual execution‑time band corresponding to the habit duration.
+* @UI @Improve @User — Increase the visual weight of the execution‑time band.
 
-## Milestone 4 — Self care tasks - @WAITING
+## Simplified Finished Timeline — PLANNED
 
-A new feature that inserts self care tasks in the habit panel. The user will have the opportunity to activate a single self care task that will be inserted in the habit panel to be executed every day along the week. Those self-care tasks are burnout solvers and are pre defined in the app.
+**Context**
+Once a habit is finished, the colored timeline becomes unnecessary clutter. A simplified result badge is enough and frees space for additional info, allowing more compact habit cards.
 
-- Add a section in the settings to select the self care task
-- Add a text on the header when burnout level is high or the trend is negative.
+**Tasks**
 
-Intention: Amplify the user's self-care routine in case of need.
+* @NormalMode @Improve @UX @User — Replace finished timeline colors with a single achievement badge.
+* @UI @Improve @User — Use freed layout space to compact the habit card.
 
-## Milestone 5 — Cronobiology layer - @WAITING
+---
 
-Add the cronobiology layer on top of the existing logic:
+# MILESTONE 2.1 — Collapsed Habit System
 
-- Add a display to show the current phase of the circadian rhythm.
-- Display the sunset and the sunrise times.
+**Description**
+Past and future habits should not compete visually with the current habit. They should collapse automatically to reduce noise and preserve attention.
 
-Intention: Add an extra layer of awareness to the app.
+**Tasks**
 
-===========
+* @NormalMode @Feature @UX @User — Expanded view only for the current habit.
+* @NormalMode @Feature @UX @User — Collapsed view for past habits (showing final status and edit).
+* @NormalMode @Feature @UX @User — Collapsed view for future habits (showing skip).
 
-## FUTURE TASKS
+---
 
-### Fixes & Improvements
+# MILESTONE 3 — Burnout Management Layer — WAITING
 
-Fixes & Improvements are defined by the user. These should be small tasks, not new features. Organized by areas.
+**Description**
+A new layer on top of the core logic to track burnout levels, provide self‑care recommendations, show trends, and offer long‑term insights.
 
-### @Site
+**Tasks**
 
-- @site @ImproTask @UI - Add a flag to mark the indispensable cards.
-- @Site @ImproTask @UI - Add dark mode.
-- @Site @ImproTask @UI - Add mobile support.
+* @Core @Feature @User — Define daily burnout levels.
+* @Core @UX @User — Daily health‑care advice based on level.
+* @UI @Feature @User — Burnout trend displayed in the header.
+* @Core @Feature @User — Extended analytics in settings.
+* @Core @UX @User — Long‑term insights.
 
-### @NormalMode
+---
 
-Sorted by priority.
+# MILESTONE 4 — Self‑Care Tasks — WAITING
 
-- @NormalMode @FixTask @UX - The notifications of the habit should stop once the habit ends.
-- @NormalMode @FixTask @UI - Edit button ins't changing the color of the badge when clicked. (the issue happen only on the first habit card).
-- @NormalMode @ImproTask @UI - Habit Edit button let switch between Green and Organge (discarding the red option).
-- @NormalMode @ImproTask @UI - Remove the label "· Fet" that displays when a habit is set as Done.
-- @NormalMode @ImproTask @UI - Substitute the Edited badge with an icon.
-- @NormalMode @ImproTask @UI - Add a field to the habit to display messages, adapted to the time of the day, burnout level, etc.
-- @NormalMode @ImproMilestone @UX - Change the way the habit got old before the user set Done. The idea is giving the opportunity to say why the habit was skipped. These questions will help the system to understand the user's habits and provide better UX.
+**Description**
+Allows inserting predefined self‑care tasks into the daily habit panel for a week, triggered by burnout state or manually activated.
 
-#### @NormalMode Tasks done
+**Tasks**
 
-- @NormalMode @FixTask @UI - The normal mode tasks are not visible on iPhone Safari. - DONE
-- @NormalMode @FixTask @UX - The web should reload the database & update the UI with the data stored, in order to avoid user mistakes. - DONE
+* @Core @Feature @User — Self‑care task selection in settings.
+* @NormalMode @UX @Feature @User — Add self‑care task as a daily habit for the week.
+* @UI @Improve @User — Header message triggered by high burnout level or negative trend.
 
-### @SpecialMode
+---
 
-- @SpecialMode @ImproTask @UI - Omit feature: add a "Why?" dropdown, like Normal mode omits.
+# MILESTONE 5 — Cronobiology Layer — WAITING
 
-## Tech Debt
+**Description**
+Adds circadian rhythm awareness to help the user understand energy phases throughout the day.
 
-List of tasks defined by the AI agent. The user will move them to the appropriate milestone.
+**Tasks**
 
-- @Tech @RefactorMilestone - Refactor legacy date handling logic for consistency.
-- @Feature @iOS - Implement in-app visual/audio alerts for habit reminders (works when app is open).
-- @Feature @iOS - Convert to Progressive Web App (PWA) with Service Workers for background notifications.
-- @Feature @iOS - Integrate Apple Push Notification service (APNs) for native-like notifications.
+* @Core @Feature @User — Display circadian phase.
+* @UI @Feature @User — Show sunrise / sunset times.
 
-## TAGS (@) Guidelines
+---
 
-### By area
+# FUTURE TASKS
 
-- @Site = Tasks related to the website.
-- @iOS = Tasks related to the iOS app.
-- @Android = Tasks related to the Android app.
-- @NormalMode = Tasks related to the Normal Mode.
-- @SpecialMode = Tasks related to the Special Mode.
+## Commitment Cards (Waiting)
 
-### By kind of task
+**Idea**
+A special type of card used to activate a personal commitment for a fixed duration (e.g., 7 days). Once activated, it cannot be disabled impulsively; cancellation requires passing through predefined reasons or conditions, preserving the integrity of the self‑agreement.
 
-- @FixTask = Small tasks that fix a bug. They are not improvements, but something that isn't working as it is designed.
-- @ImproTask = They are improvements, but are not big enough to be a milestone.
-- @Milestone = Big tasks that improve the user experience. They are improvements, but are big enough to be a milestone.
-- @RefactorMilestone = Refactor legacy code for consistency. It includes Milestone because it is a big task and it can breack the app.
+## Momentum Session Mode (Waiting)
 
-### By whom
+**Idea**
+A temporary mode that stacks several small tasks into a single accumulated timeline. The bar shows the expected finish time and shifts if tasks are delayed, helping trigger initiation through time visibility rather than semaphor logic.
 
-- @Tech = Tasks defined by the AI. They are not UX nor UI but backend tasks that the user will appreciate the AI hands-on.
+## Adaptive Habit Guidance (Waiting)
+
+**Idea**
+Inside each habit, allow an expandable text or checklist explaining how to perform it. Content adapts to burnout level: fuller activation steps when energy is high, simplified options when energy is low.
+
+## Site
+
+* @Site @UI @Improve @User — Add flag for indispensable cards.
+* @Site @UI @Improve @User — Add dark mode.
+* @Site @UI @Improve @User — Add mobile support.
+* @Site @Core @Feature @User — Sync all app instances by listening to database changes.
+
+## Normal Mode
+
+* @NormalMode @Fix @UX @User — Notifications must stop once a habit ends.
+* @NormalMode @Fix @UI @User — Edit button not updating badge color.
+* @NormalMode @Improve @UI @User — Edit button toggles Green/Orange.
+* @NormalMode @Improve @UI @User — Remove label "· Fet".
+* @NormalMode @Improve @UI @User — Replace Edited badge with an icon.
+* @NormalMode @Feature @UX @User — Dynamic habit messages (time‑based, burnout‑based, etc.).
+* @NormalMode @UX @User — New model for handling habits that become "old" before completion.
+
+### Completed
+
+* @NormalMode @Fix @UI @User — Normal mode tasks not visible on iPhone Safari.
+* @NormalMode @Fix @UX @User — Web reloads DB and updates UI to prevent user mistakes.
+
+## Special Mode
+
+* @SpecialMode @Improve @UI @User — Add "Why?" dropdown for omit.
+
+---
+
+# TECH DEBT
+
+* @Core @Refactor @AI — Refactor legacy date handling.
+* @iOS @Feature @AI — In‑app visual/audio alerts for reminders.
+* @Site @Feature @AI — Convert to PWA with Service Workers.
+* @iOS @Feature @AI — Integrate APNs for native‑like notifications.
+
+---
+
+# TAG GUIDELINES (Updated and Deterministic)
+
+These labels are designed to be **unambiguous for the assistant** and **easy for you to apply**. Each label corresponds to exactly one dimension.
+
+## 1) AREA (one per task)
+
+Defines *where* the change takes effect.
+
+```
+@Core        – Shared logic, data, persistence.
+@NormalMode  – Features and UX of Normal Mode.
+@SpecialMode – Features and UX of Special Mode.
+@Site        – Website / cross-platform surface.
+@iOS         – iOS-specific functionality.
+@Android     – Android-specific functionality.
+```
+
+## 2) TYPE (can combine)
+
+Defines *the nature of the work*.
+
+```
+@Fix         – Corrects a wrong behavior or inconsistency.
+@Improve     – Small improvement, no model changes.
+@Feature     – New functionality or capability.
+@Refactor    – Internal structural change, no UX change.
+@UX          – Conceptual or behavioral change.
+@UI          – Visual or superficial interaction change.
+```
+
+These can be combined, e.g.: `@UI @Improve`, `@Core @Feature`, `@UX @Improve`.
+
+## 3) ORIGIN (optional)
+
+Defines *who proposed the task*.
+
+```
+@User        – Defined by you.
+@AI          – Proposed by the assistant.
+```
+
+## 4) TASK vs MILESTONE (not labels)
+
+This distinction is now **structural, not part of labeling**:
+
+* **Task** → A single coherent action you want.
+* **Milestone** → A group of tasks forming a conceptual upgrade.
+
+This keeps labels clean and avoids forcing suffixes like “Task” or “Milestone”.
