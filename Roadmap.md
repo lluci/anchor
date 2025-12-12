@@ -1,6 +1,13 @@
 # ROADMAP (Refactored Labels + Restored Descriptions)
 
-Below is the roadmap restored with **full original descriptions**, rewritten entirely in **English**, and formatted with the new deterministic labels.
+Anchor is an evolving personal habit system designed around clarity, stability, and low-friction daily support. The roadmap does not prescribe strict features; instead, it provides direction for how the app should grow while staying aligned with its core purpose: helping the user maintain routines with minimal cognitive load, consistent structure, and gentle contextual awareness.
+
+Development should prioritise:
+* preserving a stable and predictable daily flow,
+* avoiding unnecessary complexity or behaviour that overrides the user’s agency,
+* keeping the interface clean, intentional, and free of moral judgement,
+* building features that reinforce awareness rather than pressure,
+* and ensuring all additions integrate smoothly with the existing logic rather than reinventing it.
 
 ---
 
